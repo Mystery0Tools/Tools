@@ -17,18 +17,12 @@
 
 package vip.mystery0.tools.base
 
-import android.os.Bundle
 import android.support.annotation.StringRes
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 
 abstract class BaseActivity : AppCompatActivity() {
-	lateinit var TAG: String
-
-	override fun onCreate(savedInstanceState: Bundle?) {
-		super.onCreate(savedInstanceState)
-		TAG = javaClass.simpleName
-	}
+	var TAG = javaClass.simpleName
 
 	fun toastMessage(@StringRes id: Int, duration: Int = Toast.LENGTH_SHORT) {
 		toastMessage(getString(id), duration)
