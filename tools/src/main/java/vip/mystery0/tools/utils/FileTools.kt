@@ -99,12 +99,22 @@ open class FileTools {
 		}
 
 		@JvmStatic
-		fun formatFileSize(file: File, decimalNum: Int = 2): String {
+		fun formatFileSize(file: File): String {
+			return formatFileSize(file, decimalNum = 2)
+		}
+
+		@JvmStatic
+		fun formatFileSize(file: File, decimalNum: Int): String {
 			return if (!file.exists()) "0B" else formatFileSize(file.length(), decimalNum)
 		}
 
 		@JvmStatic
-		fun formatFileSize(fileSize: Long, decimalNum: Int = 2): String {
+		fun formatFileSize(fileSize: Long): String {
+			return formatFileSize(fileSize, decimalNum = 2)
+		}
+
+		@JvmStatic
+		fun formatFileSize(fileSize: Long, decimalNum: Int): String {
 			val formatString = StringBuilder()
 			formatString.append("#.")
 			for (i in 0 until decimalNum)

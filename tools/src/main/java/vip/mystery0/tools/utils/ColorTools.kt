@@ -21,27 +21,35 @@ import android.graphics.Color
 import android.support.annotation.ColorInt
 
 open class ColorTools {
-
 	companion object {
 		@JvmStatic
-		fun parseColor(@ColorInt color: Int, alpha: Int = 255): Int {
+		fun parseColor(@ColorInt color: Int): Int {
+			return parseColor(color, alpha = 255)
+		}
+
+		@JvmStatic
+		fun parseColor(@ColorInt color: Int, alpha: Int): Int {
 			return Color.parseColor(parseColorToString(color, alpha))
 		}
 
 		@JvmStatic
-		fun parseColorToString(@ColorInt color: Int, alpha: Int = 255): String {
+		fun parseColorToString(@ColorInt color: Int): String {
+			return parseColorToString(color, alpha = 255)
+		}
+
+		@JvmStatic
+		fun parseColorToString(@ColorInt color: Int, alpha: Int): String {
 			val stringBuilder = StringBuilder()
 			stringBuilder.append('#')
 			val alphaString = Integer.toHexString(alpha).toUpperCase()
-			stringBuilder.append(if (alphaString.length < 2) '0' + alphaString else alphaString)
+			stringBuilder.append(if (alphaString.length < 2) "0$alphaString" else alphaString)
 			val redString = Integer.toHexString(Color.red(color)).toUpperCase()
 			val greenString = Integer.toHexString(Color.green(color)).toUpperCase()
 			val blueString = Integer.toHexString(Color.blue(color)).toUpperCase()
-			stringBuilder.append(if (redString.length < 2) '0' + redString else redString)
-			stringBuilder.append(if (greenString.length < 2) '0' + greenString else greenString)
-			stringBuilder.append(if (blueString.length < 2) '0' + blueString else blueString)
+			stringBuilder.append(if (redString.length < 2) "0$redString" else redString)
+			stringBuilder.append(if (greenString.length < 2) "0$greenString" else greenString)
+			stringBuilder.append(if (blueString.length < 2) "0$blueString" else blueString)
 			return stringBuilder.toString()
 		}
-
 	}
 }
