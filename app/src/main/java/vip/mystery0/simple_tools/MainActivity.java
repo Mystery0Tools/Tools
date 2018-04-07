@@ -15,7 +15,14 @@ public class MainActivity extends BaseActivity {
 		setContentView(R.layout.activity_main);
 
 		Log.i(TAG, "onCreate: " + CmdTools.isRoot());
-		CmdTools.CommandResult result1 = CmdTools.execRootCmd("echo test");
-		Log.i(TAG, "result: " + result1.getResult() + " s: " + result1.getSuccessMessage() + " e: " + result1.getErrorMessage());
+		Log.i(TAG, "onCreate: " + CmdTools.requestSU());
+		String[] cmds = new String[]{"echo test1", "echo test2", "echo test3"};
+		CmdTools.CommandResult result1 = CmdTools.execCommands(cmds);
+		Log.i(TAG, "onCreate: " + result1);
+		String[] cmdss = new String[]{"ls", "cd /sdcard/", "ls"};
+		CmdTools.CommandResult result2 = CmdTools.execRootCommands(cmdss);
+		Log.i(TAG, "onCreate: " + result2);
+		CmdTools.CommandResult result3 = CmdTools.execRootCommand("ls /data");
+		Log.i(TAG, "onCreate: " + result3);
 	}
 }
