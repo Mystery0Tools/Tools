@@ -17,18 +17,30 @@
 
 package vip.mystery0.tools.base
 
+import android.os.Bundle
+import android.support.annotation.LayoutRes
 import android.support.annotation.StringRes
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
 
-abstract class BaseActivity : AppCompatActivity() {
-	var TAG = javaClass.simpleName
+abstract class BaseActivity(@LayoutRes private val layoutId: Int?) : AppCompatActivity() {
 
-	fun toastMessage(@StringRes id: Int, duration: Int = Toast.LENGTH_SHORT) {
-		toastMessage(getString(id), duration)
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		if (layoutId != null)
+			setContentView(layoutId)
+		bindView()
+		initView()
+		initData()
+		loadDataToView()
+		requestData()
+		monitor()
 	}
 
-	fun toastMessage(message: String, duration: Int = Toast.LENGTH_SHORT) {
-		Toast.makeText(this, message, duration).show()
-	}
+	open fun bindView() {}
+	open fun initView() {}
+	open fun initData() {}
+	open fun loadDataToView() {}
+	open fun requestData() {}
+	open fun monitor() {}
 }

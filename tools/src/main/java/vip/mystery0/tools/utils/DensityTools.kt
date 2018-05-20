@@ -19,22 +19,20 @@ package vip.mystery0.tools.utils
 
 import android.content.Context
 
-open class DensityTools {
-	companion object {
-		fun dp2px(context: Context, dpValue: Float): Int {
-			return (dpValue * context.resources.displayMetrics.density + 0.5).toInt()
-		}
+object DensityTools {
+	fun dp2px(context: Context, dpValue: Float): Int {
+		return (dpValue * context.resources.displayMetrics.density + 0.5).toInt()
+	}
 
-		fun px2dp(context: Context, pxValue: Float): Int {
-			return (pxValue / context.resources.displayMetrics.density + 0.5).toInt()
-		}
+	fun px2dp(context: Context, pxValue: Float): Int {
+		return (pxValue / context.resources.displayMetrics.density + 0.5).toInt()
+	}
 
-		fun getScreenWidth(context: Context): Int {
-			return context.resources.displayMetrics.widthPixels
-		}
+	fun getScreenWidth(context: Context): Int {
+		return context.resources.displayMetrics.widthPixels
+	}
 
-		fun getScreenHeight(context: Context): Int {
-			return context.resources.displayMetrics.heightPixels
-		}
+	fun getScreenHeight(context: Context): Int {
+		return context.resources.displayMetrics.heightPixels
 	}
 }

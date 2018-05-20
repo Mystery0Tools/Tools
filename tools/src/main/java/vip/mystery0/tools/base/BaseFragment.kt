@@ -1,17 +1,34 @@
 package vip.mystery0.tools.base
 
+import android.os.Bundle
+import android.support.annotation.IdRes
+import android.support.annotation.LayoutRes
 import android.support.annotation.StringRes
 import android.support.v4.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 
-abstract class BaseFragment : Fragment() {
-	var TAG = javaClass.simpleName
+abstract class BaseFragment(@LayoutRes private val layoutId:Int) : Fragment() {
+	private var rootView: View? = null
 
-	fun toastMessage(@StringRes id: Int, duration: Int = Toast.LENGTH_SHORT) {
-		toastMessage(getString(id), duration)
+	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+		if (rootView == null)
+			rootView = inflater.inflate(layoutId, container, false)
+		return rootView
 	}
 
-	fun toastMessage(message: String, duration: Int = Toast.LENGTH_SHORT) {
-		Toast.makeText(context, message, duration).show()
+	override fun onActivityCreated(savedInstanceState: Bundle?) {
+		super.onActivityCreated(savedInstanceState)
+		initView()
+		monitor()
+	}
+
+	abstract fun initView()
+	open fun monitor() {}
+
+	fun <T : View> findViewById(@IdRes id: Int): T {
+		return rootView!!.findViewById(id)
 	}
 }
