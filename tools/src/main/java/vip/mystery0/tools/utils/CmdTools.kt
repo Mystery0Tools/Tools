@@ -11,11 +11,19 @@ object CmdTools {
 	private const val CMD_LINE_END = '\n'
 	private const val CMD_START = "sh"
 
+	/**
+	 * 检测设备是否Root
+	 * @return 返回是否Root
+	 */
 	fun isRoot(): Boolean {
 		val commandResult = execCommand(CMD_SU)
 		return commandResult.result != -1
 	}
 
+	/**
+	 * 申请Root权限
+	 * @return 返回申请结果
+	 */
 	fun requestSU(): Boolean {
 		val commandResult = execCommand(CMD_SU)
 		if (commandResult.errorMessage != null && commandResult.errorMessage!!.contains(PERMISSION_DENIED))
@@ -23,6 +31,11 @@ object CmdTools {
 		return true
 	}
 
+	/**
+	 * 执行命令
+	 * @param cmd    执行的命令
+	 * @return       返回包含执行结果的对象
+	 */
 	fun execCommand(cmd: String): CommandResult {
 		val result = CommandResult()
 		var process: Process? = null
@@ -48,6 +61,11 @@ object CmdTools {
 		return result
 	}
 
+	/**
+	 * 申请Root权限之后执行命令
+	 * @param cmd    执行的命令
+	 * @return       返回包含执行结果的对象
+	 */
 	fun execRootCommand(cmd: String): CommandResult {
 		val result = CommandResult()
 		var process: Process? = null
@@ -75,6 +93,11 @@ object CmdTools {
 		return result
 	}
 
+	/**
+	 * 执行多条命令
+	 * @param cmds    执行的命令
+	 * @return        返回包含执行结果的对象
+	 */
 	fun execCommands(cmds: Array<String>): CommandResult {
 		val result = CommandResult()
 		var process: Process? = null
@@ -104,6 +127,11 @@ object CmdTools {
 		return result
 	}
 
+	/**
+	 * Root后执行多条命令
+	 * @param cmds    执行的命令
+	 * @return        返回包含执行结果的对象
+	 */
 	fun execRootCommands(cmds: Array<String>): CommandResult {
 		val result = CommandResult()
 

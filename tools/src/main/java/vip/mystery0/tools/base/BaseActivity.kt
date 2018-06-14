@@ -28,13 +28,17 @@ abstract class BaseActivity(@LayoutRes private val layoutId: Int?) : AppCompatAc
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		if (layoutId != null)
-			setContentView(layoutId)
+			inflateView(layoutId)
 		bindView()
 		initView()
 		initData()
 		loadDataToView()
 		requestData()
 		monitor()
+	}
+
+	open fun inflateView(layoutId: Int) {
+		setContentView(layoutId)
 	}
 
 	open fun bindView() {}
