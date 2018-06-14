@@ -10,12 +10,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 
-abstract class BaseFragment(@LayoutRes private val layoutId:Int) : Fragment() {
+abstract class BaseFragment(@LayoutRes private val layoutId: Int) : Fragment() {
 	private var rootView: View? = null
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		if (rootView == null)
-			rootView = inflater.inflate(layoutId, container, false)
+			rootView = inflateView(layoutId, inflater, container)
 		return rootView
 	}
 
@@ -25,7 +25,12 @@ abstract class BaseFragment(@LayoutRes private val layoutId:Int) : Fragment() {
 		monitor()
 	}
 
+
 	abstract fun initView()
+	open fun inflateView(layoutId: Int, inflater: LayoutInflater, container: ViewGroup?): View {
+		return inflater.inflate(layoutId, container, false)
+	}
+
 	open fun monitor() {}
 
 	fun <T : View> findViewById(@IdRes id: Int): T {
