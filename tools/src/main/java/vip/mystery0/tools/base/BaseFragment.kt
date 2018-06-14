@@ -25,7 +25,6 @@ abstract class BaseFragment(@LayoutRes private val layoutId: Int) : Fragment() {
 		monitor()
 	}
 
-
 	abstract fun initView()
 	open fun inflateView(layoutId: Int, inflater: LayoutInflater, container: ViewGroup?): View {
 		return inflater.inflate(layoutId, container, false)
