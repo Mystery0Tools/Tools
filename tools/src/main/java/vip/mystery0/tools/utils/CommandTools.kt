@@ -175,6 +175,8 @@ object CommandTools {
 		var successMessage: String? = null
 		var errorMessage: String? = null
 
+		fun isSuccess(): Boolean = errorMessage == null || errorMessage == ""
+
 		override fun toString(): String {
 			return "result=$result, successMessage=$successMessage, errorMessage=$errorMessage"
 		}
