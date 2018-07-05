@@ -4,12 +4,14 @@ import java.io.BufferedReader
 import java.io.DataOutputStream
 import java.io.InputStreamReader
 
-object CmdTools {
+object CommandTools {
 	private const val PERMISSION_DENIED = "Permission denied"
 	private const val CMD_SU = "su"
 	private const val CMD_EXIT = "exit\n"
 	private const val CMD_LINE_END = '\n'
 	private const val CMD_START = "sh"
+	private var process: Process? = null
+	var isPrintError = true
 
 	/**
 	 * 检测设备是否Root
@@ -38,25 +40,25 @@ object CmdTools {
 	 */
 	fun execCommand(cmd: String): CommandResult {
 		val result = CommandResult()
-		var process: Process? = null
 		var dataOutputStream: DataOutputStream? = null
 		try {
+			killProcess()
 			process = Runtime.getRuntime().exec(cmd)
-			dataOutputStream = DataOutputStream(process.outputStream)
+			dataOutputStream = DataOutputStream(process!!.outputStream)
 			dataOutputStream.writeBytes(CMD_EXIT)
 			dataOutputStream.flush()
-			result.result = process.waitFor()
-			result.errorMessage = BufferedReader(InputStreamReader(process.errorStream)).readText()
-			result.successMessage = BufferedReader(InputStreamReader(process.inputStream)).readText()
+			result.result = process!!.waitFor()
+			result.errorMessage = BufferedReader(InputStreamReader(process!!.errorStream)).readText()
+			result.successMessage = BufferedReader(InputStreamReader(process!!.inputStream)).readText()
 		} catch (e: Exception) {
-			e.printStackTrace()
+			if (isPrintError)
+				e.printStackTrace()
 			result.errorMessage = e.message
 			result.successMessage = ""
 		} finally {
-			if (dataOutputStream != null)
-				dataOutputStream.close()
-			if (process != null)
-				process.destroy()
+			dataOutputStream?.close()
+			process?.destroy()
+			process = null
 		}
 		return result
 	}
@@ -68,27 +70,27 @@ object CmdTools {
 	 */
 	fun execRootCommand(cmd: String): CommandResult {
 		val result = CommandResult()
-		var process: Process? = null
 		var dataOutputStream: DataOutputStream? = null
 		try {
+			killProcess()
 			process = Runtime.getRuntime().exec(CMD_SU)
-			dataOutputStream = DataOutputStream(process.outputStream)
+			dataOutputStream = DataOutputStream(process!!.outputStream)
 			dataOutputStream.writeBytes(cmd + CMD_LINE_END)
 			dataOutputStream.flush()
 			dataOutputStream.writeBytes(CMD_EXIT)
 			dataOutputStream.flush()
-			result.result = process.waitFor()
-			result.errorMessage = BufferedReader(InputStreamReader(process.errorStream)).readText()
-			result.successMessage = BufferedReader(InputStreamReader(process.inputStream)).readText()
+			result.result = process!!.waitFor()
+			result.errorMessage = BufferedReader(InputStreamReader(process!!.errorStream)).readText()
+			result.successMessage = BufferedReader(InputStreamReader(process!!.inputStream)).readText()
 		} catch (e: Exception) {
-			e.printStackTrace()
+			if (isPrintError)
+				e.printStackTrace()
 			result.errorMessage = e.message
 			result.successMessage = ""
 		} finally {
-			if (dataOutputStream != null)
-				dataOutputStream.close()
-			if (process != null)
-				process.destroy()
+			dataOutputStream?.close()
+			process?.destroy()
+			process = null
 		}
 		return result
 	}
@@ -100,29 +102,29 @@ object CmdTools {
 	 */
 	fun execCommands(cmds: Array<String>): CommandResult {
 		val result = CommandResult()
-		var process: Process? = null
 		var dataOutputStream: DataOutputStream? = null
 		try {
+			killProcess()
 			process = Runtime.getRuntime().exec(CMD_START)
-			dataOutputStream = DataOutputStream(process.outputStream)
+			dataOutputStream = DataOutputStream(process!!.outputStream)
 			for (i in cmds.indices) {
 				dataOutputStream.writeBytes("${cmds[i]}$CMD_LINE_END")
 				dataOutputStream.flush()
 			}
 			dataOutputStream.writeBytes(CMD_EXIT)
 			dataOutputStream.flush()
-			result.result = process.waitFor()
-			result.errorMessage = BufferedReader(InputStreamReader(process.errorStream)).readText()
-			result.successMessage = BufferedReader(InputStreamReader(process.inputStream)).readText()
+			result.result = process!!.waitFor()
+			result.errorMessage = BufferedReader(InputStreamReader(process!!.errorStream)).readText()
+			result.successMessage = BufferedReader(InputStreamReader(process!!.inputStream)).readText()
 		} catch (e: Exception) {
-			e.printStackTrace()
+			if (isPrintError)
+				e.printStackTrace()
 			result.errorMessage = e.message
 			result.successMessage = ""
 		} finally {
-			if (dataOutputStream != null)
-				dataOutputStream.close()
-			if (process != null)
-				process.destroy()
+			dataOutputStream?.close()
+			process?.destroy()
+			process = null
 		}
 		return result
 	}
@@ -134,32 +136,38 @@ object CmdTools {
 	 */
 	fun execRootCommands(cmds: Array<String>): CommandResult {
 		val result = CommandResult()
-
-		var process: Process? = null
 		var dataOutputStream: DataOutputStream? = null
 		try {
+			killProcess()
 			process = Runtime.getRuntime().exec(CMD_SU)
-			dataOutputStream = DataOutputStream(process.outputStream)
+			dataOutputStream = DataOutputStream(process!!.outputStream)
 			for (i in cmds.indices) {
 				dataOutputStream.writeBytes("${cmds[i]}$CMD_LINE_END")
 				dataOutputStream.flush()
 			}
 			dataOutputStream.writeBytes(CMD_EXIT)
 			dataOutputStream.flush()
-			result.result = process.waitFor()
-			result.errorMessage = BufferedReader(InputStreamReader(process.errorStream)).readText()
-			result.successMessage = BufferedReader(InputStreamReader(process.inputStream)).readText()
+			result.result = process!!.waitFor()
+			result.errorMessage = BufferedReader(InputStreamReader(process!!.errorStream)).readText()
+			result.successMessage = BufferedReader(InputStreamReader(process!!.inputStream)).readText()
 		} catch (e: Exception) {
-			e.printStackTrace()
+			if (isPrintError)
+				e.printStackTrace()
 			result.errorMessage = e.message
 			result.successMessage = ""
 		} finally {
-			if (dataOutputStream != null)
-				dataOutputStream.close()
-			if (process != null)
-				process.destroy()
+			dataOutputStream?.close()
+			process?.destroy()
+			process = null
 		}
 		return result
+	}
+
+	/**
+	 * 终止进程
+	 */
+	fun killProcess() {
+		process?.destroy()
 	}
 
 	class CommandResult {
