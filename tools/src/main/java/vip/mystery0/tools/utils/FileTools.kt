@@ -93,8 +93,7 @@ object FileTools {
 				return cursor.getString(columnIndex)
 			}
 		} finally {
-			if (cursor != null)
-				cursor.close()
+			cursor?.close()
 		}
 		return null
 	}
@@ -186,10 +185,31 @@ object FileTools {
 		} catch (e: Exception) {
 			return ERROR
 		} finally {
-			if (fileInputStream != null)
-				fileInputStream.close()
-			if (fileOutputStream != null)
-				fileOutputStream.close()
+			fileInputStream?.close()
+			fileOutputStream?.close()
+		}
+	}
+
+	fun saveFile(inputStream: InputStream?, file: File): Boolean {
+		try {
+			if (!file.parentFile.exists())
+				file.parentFile.mkdirs()
+			if (file.exists())
+				file.delete()
+			val dataInputStream = DataInputStream(BufferedInputStream(inputStream))
+			val dataOutputStream = DataOutputStream(BufferedOutputStream(FileOutputStream(file)))
+			val bytes = ByteArray(1024 * 1024)
+			while (true) {
+				val read = dataInputStream.read(bytes)
+				if (read <= 0)
+					break
+				dataOutputStream.write(bytes, 0, read)
+			}
+			dataOutputStream.close()
+			return true
+		} catch (e: Exception) {
+			e.printStackTrace()
+			return false
 		}
 	}
 }
