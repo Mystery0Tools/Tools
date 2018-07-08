@@ -14,21 +14,12 @@ object CommandTools {
 	var isPrintError = true
 
 	/**
-	 * 检测设备是否Root
-	 * @return 返回是否Root
-	 */
-	fun isRoot(): Boolean {
-		val commandResult = execCommand(CMD_SU)
-		return commandResult.result != -1
-	}
-
-	/**
 	 * 申请Root权限
 	 * @return 返回申请结果
 	 */
 	fun requestSU(): Boolean {
 		val commandResult = execCommand(CMD_SU)
-		if (commandResult.errorMessage != null && commandResult.errorMessage!!.contains(PERMISSION_DENIED))
+		if (commandResult.errorMessage != null && (commandResult.errorMessage == PERMISSION_DENIED))
 			return false
 		return true
 	}
