@@ -18,10 +18,8 @@
 package vip.mystery0.tools.base
 
 import android.os.Bundle
-import android.support.annotation.LayoutRes
-import android.support.annotation.StringRes
-import android.support.v7.app.AppCompatActivity
-import android.widget.Toast
+import androidx.annotation.LayoutRes
+import androidx.appcompat.app.AppCompatActivity
 
 abstract class BaseActivity(@LayoutRes private val layoutId: Int?) : AppCompatActivity() {
 

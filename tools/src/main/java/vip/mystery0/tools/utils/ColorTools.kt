@@ -18,7 +18,7 @@
 package vip.mystery0.tools.utils
 
 import android.graphics.Color
-import android.support.annotation.ColorInt
+import androidx.annotation.ColorInt
 
 object ColorTools {
 	fun parseColor(@ColorInt color: Int): Int {

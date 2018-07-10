@@ -4,6 +4,11 @@ import java.math.BigInteger
 import java.security.MessageDigest
 
 object StringTools {
+	/**
+	 * MD5加密
+	 * @param message 原始数据
+	 * @return MD5加密之后的字符串
+	 */
 	fun getMD5(message: String): String {
 		try {
 			val md5 = MessageDigest.getInstance("MD5")

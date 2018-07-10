@@ -27,12 +27,19 @@ import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.support.annotation.RequiresApi
+import androidx.annotation.RequiresApi
 import android.util.Base64
 import java.io.*
 import java.text.DecimalFormat
 
+
 object FileTools {
+	/**
+	 * 从uri中获取路径
+	 * @param context 上下文
+	 * @param uri 需要获取路径的uri对象
+	 * @return 提取到的路径
+	 */
 	@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 	fun getPath(context: Context, uri: Uri): String? {
 		when {
@@ -98,12 +105,26 @@ object FileTools {
 		return null
 	}
 
+	/**
+	 * bitmap转成byte数组
+	 * @param compressFormat 需要转换的格式
+	 * @param bitmap 需要转换的bitmap
+	 * @return 转换后的byte数组
+	 */
 	fun bitmapToByteArray(compressFormat: Bitmap.CompressFormat, bitmap: Bitmap): ByteArray {
 		val byteArrayOutputStream = ByteArrayOutputStream()
 		bitmap.compress(compressFormat, 100, byteArrayOutputStream)
 		return byteArrayOutputStream.toByteArray()
 	}
 
+	/**
+	 * 压缩图片并进行base64加密
+	 * @param compressFormat 压缩的格式
+	 * @param file 图片文件
+	 * @param maxSize 压缩之后最大的大小
+	 * @param interval 每次压缩的压缩率差值
+	 * @return base64字符串
+	 */
 	fun compressImage(compressFormat: Bitmap.CompressFormat, file: File, maxSize: Int, interval: Int): String {
 		if (interval <= 0 || interval > 100)
 			throw NumberFormatException("interval can not be less 0 or more than 100")
@@ -123,18 +144,43 @@ object FileTools {
 		return base64String
 	}
 
+	/**
+	 * 格式化文件大小
+	 * @param file 需要格式化的文件
+	 * @return 格式化之后的字符串
+	 */
 	fun formatFileSize(file: File): String {
 		return formatFileSize(file, decimalNum = 2)
 	}
 
+
+	/**
+	 * 格式化文件大小
+	 * @param file 需要格式化的文件
+	 * @param decimalNum 要格式化的小数位数
+	 * @return 格式化之后的字符串
+	 */
 	fun formatFileSize(file: File, decimalNum: Int): String {
 		return if (!file.exists()) "0B" else formatFileSize(file.length(), decimalNum)
 	}
 
+
+	/**
+	 * 格式化文件大小
+	 * @param fileSize 需要格式化的文件
+	 * @return 格式化之后的字符串
+	 */
 	fun formatFileSize(fileSize: Long): String {
 		return formatFileSize(fileSize, decimalNum = 2)
 	}
 
+
+	/**
+	 * 格式化文件大小
+	 * @param fileSize 需要格式化的文件大小
+	 * @param decimalNum 要格式化的小数位数
+	 * @return 格式化之后的字符串
+	 */
 	fun formatFileSize(fileSize: Long, decimalNum: Int): String {
 		val formatString = StringBuilder()
 		formatString.append("#.")
@@ -158,10 +204,13 @@ object FileTools {
 
 	/**
 	 * 拷贝文件
-	 *
 	 * @param inputPath  输入路径
 	 * @param outputPath 输出路径
 	 * @return 返回码
+	 * @see DONE 成功
+	 * @see ERROR 失败
+	 * @see FILE_NOT_EXIST 文件不存在
+	 * @see MAKE_DIR_ERROR 创建文件夹失败
 	 */
 	fun copyFile(inputPath: String, outputPath: String): Int {
 		if (!File(inputPath).exists()) {
@@ -190,6 +239,12 @@ object FileTools {
 		}
 	}
 
+	/**
+	 * 将输入流的数据存储到文件中
+	 * @param inputStream 输入流
+	 * @param file 要存储到的文件
+	 * @return 存储结果
+	 */
 	fun saveFile(inputStream: InputStream?, file: File): Boolean {
 		try {
 			if (!file.parentFile.exists())
@@ -211,5 +266,33 @@ object FileTools {
 			e.printStackTrace()
 			return false
 		}
+	}
+
+	/**
+	 * 删除文件夹
+	 * @param path 要删除的文件夹路径
+	 * @return 返回码
+	 */
+	fun deleteDir(path: String): Int = deleteDir(File(path))
+
+	/**
+	 * 删除文件夹
+	 * @param dir 要删除的文件夹
+	 * @return 返回码
+	 * @see DONE 成功
+	 * @see FILE_NOT_EXIST 文件不存在
+	 */
+	fun deleteDir(dir: File): Int {
+		if (dir.exists()) {
+			if (dir.isDirectory) {
+				dir.listFiles().forEach {
+					deleteDir(it)
+				}
+			} else {
+				dir.delete()
+				return DONE
+			}
+		}
+		return FILE_NOT_EXIST
 	}
 }
