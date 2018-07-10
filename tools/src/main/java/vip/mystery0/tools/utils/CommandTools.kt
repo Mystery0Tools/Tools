@@ -161,6 +161,11 @@ object CommandTools {
 		process?.destroy()
 	}
 
+	/**
+	 * 执行shell命令的结果
+	 * @see CommandResult.isSuccess shell命令是否执行成功（根据是否存在错误信息判断）
+	 * @deprecated
+	 */
 	class CommandResult {
 		var result = -1
 		var successMessage: String? = null

@@ -1,15 +1,15 @@
 package vip.mystery0.tools.base
 
 import android.content.Context
-import android.support.annotation.LayoutRes
-import android.support.v7.widget.RecyclerView
+import androidx.annotation.LayoutRes
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
 abstract class BaseRecyclerViewAdapter<T : RecyclerView.ViewHolder, in C : Any>(private val context: Context?,
 																				@LayoutRes private val itemLayoutId: Int,
-																				val list: ArrayList<in C>) : RecyclerView.Adapter<T>() {
+																				private val list: ArrayList<in C>) : RecyclerView.Adapter<T>() {
 	override fun getItemCount(): Int = list.size
 
 	override fun onBindViewHolder(holder: T, position: Int) {

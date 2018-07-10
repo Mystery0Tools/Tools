@@ -5,11 +5,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.support.v4.content.FileProvider
+import androidx.core.content.FileProvider
 import java.io.File
 
 object IntentTools {
-
 	/**
 	 * 分享单个文件
 	 * @param context       上下文

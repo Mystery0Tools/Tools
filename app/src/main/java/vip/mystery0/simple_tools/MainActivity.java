@@ -20,7 +20,6 @@ public class MainActivity extends BaseActivity {
 	@Override
 	public void initData() {
 		super.initData();
-		Log.i(TAG, "initData: " + CommandTools.INSTANCE.isRoot());
 		Log.i(TAG, "initData: " + CommandTools.INSTANCE.requestSU());
 		String[] cmds = new String[]{"echo test1", "echo test2", "echo test3"};
 		CommandTools.CommandResult result1 = CommandTools.INSTANCE.execCommands(cmds);
