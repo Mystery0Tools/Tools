@@ -17,7 +17,6 @@
 
 package vip.mystery0.tools.utils
 
-import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
@@ -25,7 +24,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
@@ -41,73 +39,91 @@ object FileTools {
 	 * @param uri 需要获取路径的uri对象
 	 * @return 提取到的路径
 	 */
-	@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 	fun getPath(context: Context, uri: Uri): String? {
-		when (uri.scheme) {
-			ContentResolver.SCHEME_FILE -> return uri.path
-			ContentResolver.SCHEME_CONTENT -> {
-				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-					var path: String? = null
-					val cursor = context.contentResolver.query(uri, arrayOf(MediaStore.Images.Media.DATA), null, null, null)
-					if (cursor != null) {
-						if (cursor.moveToFirst()) {
-							val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-							if (columnIndex > -1)
-								path = cursor.getString(columnIndex)
-						}
-						cursor.close()
-					}
-					return path
-				} else if (DocumentsContract.isDocumentUri(context, uri)) {
-					when (uri.authority) {
-						"com.android.externalstorage.documents" -> {
-							val docId = DocumentsContract.getDocumentId(uri)
-							val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-							val type = split[0]
-							if (type.toLowerCase() == "primary")
-								return Environment.getExternalStorageDirectory().toString() + File.pathSeparator + split[1]
-						}
-						"com.android.providers.downloads.documents" -> {
-							val id = DocumentsContract.getDocumentId(uri)
-							val contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), id.toLong())
-							return getDataColumn(context, contentUri, null, null)
-						}
-						"com.android.providers.media.documents" -> {
-							val docId = DocumentsContract.getDocumentId(uri)
-							val split = docId.split(':')
-							val type = split[0]
-							var contentUri: Uri? = null
-							when (type) {
-								"image" -> contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-								"video" -> contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-								"audio" -> contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-							}
-							val selection = "_id=?"
-							val selectionArgs = arrayOf(split[1])
-							return getDataColumn(context, contentUri!!, selection, selectionArgs)
-						}
-					}
-				}
-			}
+		return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) { // api >= 19
+			getRealPathFromUriAboveApi19(context, uri)
+		} else {// api < 19
+			getRealPathFromUriBelowAPI19(context, uri)
 		}
-		return null
 	}
 
-	private fun getDataColumn(context: Context, uri: Uri, selection: String?,
-							  selectionArgs: Array<String>?): String? {
+	/**
+	 * 适配api19以下(不包括api19),根据uri获取图片的绝对路径
+	 *
+	 * @param context 上下文对象
+	 * @param uri     图片的Uri
+	 * @return 如果Uri对应的图片存在, 那么返回该图片的绝对路径, 否则返回null
+	 */
+	private fun getRealPathFromUriBelowAPI19(context: Context, uri: Uri): String? {
+		return getDataColumn(context, uri, null, null)
+	}
+
+	/**
+	 * 适配api19及以上,根据uri获取图片的绝对路径
+	 *
+	 * @param context 上下文对象
+	 * @param uri     图片的Uri
+	 * @return 如果Uri对应的图片存在, 那么返回该图片的绝对路径, 否则返回null
+	 */
+	@RequiresApi(api = Build.VERSION_CODES.KITKAT)
+	private fun getRealPathFromUriAboveApi19(context: Context, uri: Uri): String? {
+		var filePath: String? = null
+		if (DocumentsContract.isDocumentUri(context, uri)) {
+			// 如果是document类型的 uri, 则通过document id来进行处理
+			val documentId = DocumentsContract.getDocumentId(uri)
+			if (isMediaDocument(uri)) { // MediaProvider
+				// 使用':'分割
+				val id = documentId.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
+				val selection = MediaStore.Images.Media._ID + "=?"
+				val selectionArgs = arrayOf(id)
+				filePath = getDataColumn(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection, selectionArgs)
+			} else if (isDownloadsDocument(uri)) { // DownloadsProvider
+				val contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), java.lang.Long.valueOf(documentId))
+				filePath = getDataColumn(context, contentUri, null, null)
+			}
+		} else if ("content".equals(uri.scheme!!, ignoreCase = true)) {
+			// 如果是 content 类型的 Uri
+			filePath = getDataColumn(context, uri, null, null)
+		} else if ("file" == uri.scheme) {
+			// 如果是 file 类型的 Uri,直接获取图片对应的路径
+			filePath = uri.path
+		}
+		return filePath
+	}
+
+	/**
+	 * 获取数据库表中的 _data 列，即返回Uri对应的文件路径
+	 */
+	private fun getDataColumn(context: Context, uri: Uri, selection: String?, selectionArgs: Array<String>?): String? {
+		var path: String? = null
+		val projection = arrayOf(MediaStore.Images.Media.DATA)
 		var cursor: Cursor? = null
-		val column = "_data"
-		val projection = arrayOf(column)
 		try {
 			cursor = context.contentResolver.query(uri, projection, selection, selectionArgs, null)
 			if (cursor != null && cursor.moveToFirst()) {
-				val columnIndex = cursor.getColumnIndexOrThrow(column)
-				return cursor.getString(columnIndex)
+				val columnIndex = cursor.getColumnIndexOrThrow(projection[0])
+				path = cursor.getString(columnIndex)
 			}
-		} finally {
+		} catch (e: Exception) {
 			cursor?.close()
 		}
-		return null
+		return path
+	}
+
+	/**
+	 * @param uri the Uri to check
+	 * @return Whether the Uri authority is MediaProvider
+	 */
+	private fun isMediaDocument(uri: Uri): Boolean {
+		return "com.android.providers.media.documents" == uri.authority
+	}
+
+	/**
+	 * @param uri the Uri to check
+	 * @return Whether the Uri authority is DownloadsProvider
+	 */
+	private fun isDownloadsDocument(uri: Uri): Boolean {
+		return "com.android.providers.downloads.documents" == uri.authority
 	}
 
 	/**
