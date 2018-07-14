@@ -7,9 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
-abstract class BaseRecyclerViewAdapter<T : RecyclerView.ViewHolder, in C : Any>(private val context: Context?,
-																				@LayoutRes private val itemLayoutId: Int,
-																				private val list: ArrayList<in C>) : RecyclerView.Adapter<T>() {
+abstract class BaseRecyclerViewAdapter<T : RecyclerView.ViewHolder, in C : Any>
+(private val context: Context?,
+ @LayoutRes private val itemLayoutId: Int,
+ private val list: ArrayList<in C>) : RecyclerView.Adapter<T>() {
 	override fun getItemCount(): Int = list.size
 
 	override fun onBindViewHolder(holder: T, position: Int) {
