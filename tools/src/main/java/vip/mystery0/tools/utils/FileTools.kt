@@ -17,6 +17,7 @@
 
 package vip.mystery0.tools.utils
 
+import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
@@ -42,48 +43,52 @@ object FileTools {
 	 */
 	@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 	fun getPath(context: Context, uri: Uri): String? {
-		when {
-			DocumentsContract.isDocumentUri(context, uri) -> {
-				when (uri.authority) {
-					"com.android.externalstorage.documents" -> {
-						val docId = DocumentsContract.getDocumentId(uri)
-						val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-						val type = split[0]
-
-						if ("primary".equals(type, ignoreCase = true)) {
-							return Environment.getExternalStorageDirectory().toString() + File.pathSeparator + split[1]
+		when (uri.scheme) {
+			ContentResolver.SCHEME_FILE -> return uri.path
+			ContentResolver.SCHEME_CONTENT -> {
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+					var path: String? = null
+					val cursor = context.contentResolver.query(uri, arrayOf(MediaStore.Images.Media.DATA), null, null, null)
+					if (cursor != null) {
+						if (cursor.moveToFirst()) {
+							val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+							if (columnIndex > -1)
+								path = cursor.getString(columnIndex)
 						}
+						cursor.close()
 					}
-					"com.android.providers.downloads.documents" -> {
-						val id = DocumentsContract.getDocumentId(uri)
-						val contentUri = ContentUris.withAppendedId(
-								Uri.parse("content://downloads/public_downloads"), id.toLong())
-
-						return getDataColumn(context, contentUri, null, null)
-					}
-					"com.android.providers.media.documents" -> {
-						val docId = DocumentsContract.getDocumentId(uri)
-						val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-						val type = split[0]
-
-						var contentUri: Uri? = null
-						when (type) {
-							"image" -> contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-							"video" -> contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-							"audio" -> contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+					return path
+				} else if (DocumentsContract.isDocumentUri(context, uri)) {
+					when (uri.authority) {
+						"com.android.externalstorage.documents" -> {
+							val docId = DocumentsContract.getDocumentId(uri)
+							val split = docId.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+							val type = split[0]
+							if (type.toLowerCase() == "primary")
+								return Environment.getExternalStorageDirectory().toString() + File.pathSeparator + split[1]
 						}
-
-						val selection = "_id=?"
-						val selectionArgs = arrayOf(split[1])
-
-						return getDataColumn(context, contentUri!!, selection, selectionArgs)
+						"com.android.providers.downloads.documents" -> {
+							val id = DocumentsContract.getDocumentId(uri)
+							val contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), id.toLong())
+							return getDataColumn(context, contentUri, null, null)
+						}
+						"com.android.providers.media.documents" -> {
+							val docId = DocumentsContract.getDocumentId(uri)
+							val split = docId.split(':')
+							val type = split[0]
+							var contentUri: Uri? = null
+							when (type) {
+								"image" -> contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+								"video" -> contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+								"audio" -> contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+							}
+							val selection = "_id=?"
+							val selectionArgs = arrayOf(split[1])
+							return getDataColumn(context, contentUri!!, selection, selectionArgs)
+						}
 					}
 				}
 			}
-			"content".equals(uri.scheme, ignoreCase = true) ->
-				return getDataColumn(context, uri, null, null)
-			"file".equals(uri.scheme, ignoreCase = true) ->
-				return uri.path
 		}
 		return null
 	}
