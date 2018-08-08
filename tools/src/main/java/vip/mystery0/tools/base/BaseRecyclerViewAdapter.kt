@@ -11,9 +11,7 @@ abstract class BaseRecyclerViewAdapter<T : RecyclerView.ViewHolder, M : Any>(@La
 
 	override fun getItemCount(): Int = list.size
 
-	override fun onBindViewHolder(holder: T, position: Int) {
-		setItemView(holder, position, list[position])
-	}
+	override fun onBindViewHolder(holder: T, position: Int) =setItemView(holder, position, list[position])
 
 	abstract fun setItemView(holder: T, position: Int, data: M)
 
