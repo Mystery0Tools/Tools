@@ -191,9 +191,9 @@ object FileTools {
 		val fileSizeString: String
 		fileSizeString = when {
 			fileSize < 1024 -> decimalFormat.format(fileSize) + 'B'
-			fileSize < 1024 * 1024 -> decimalFormat.format(fileSize / 1024) + "KB"
-			fileSize < 1024 * 1024 * 1024 -> decimalFormat.format(fileSize / 1024 / 1024) + "MB"
-			else -> decimalFormat.format(fileSize / 1024 / 1024 / 1024) + "GB"
+			fileSize < 1024 * 1024 -> decimalFormat.format(fileSize.toFloat() / 1024f) + "KB"
+			fileSize < 1024 * 1024 * 1024 -> decimalFormat.format(fileSize.toFloat() / 1024f / 1024f) + "MB"
+			else -> decimalFormat.format(fileSize.toFloat() / 1024f / 1024f / 1024f) + "GB"
 		}
 		return fileSizeString
 	}
