@@ -30,6 +30,8 @@ import androidx.annotation.RequiresApi
 import android.util.Base64
 import java.io.*
 import java.text.DecimalFormat
+import java.nio.channels.FileChannel
+import java.security.MessageDigest
 
 
 object FileTools {
@@ -315,5 +317,25 @@ object FileTools {
 			}
 		}
 		return FILE_NOT_EXIST
+	}
+
+	fun getMD5(file: File): String {
+		var md5 = ""
+		try {
+			val hexDigits = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f')
+			val messageDigest = MessageDigest.getInstance("MD5")
+			messageDigest.update(FileInputStream(file).channel.map(FileChannel.MapMode.READ_ONLY, 0, file.length()))
+			val bytes = messageDigest.digest()
+			val stringBuffer = StringBuffer(2 * bytes.size)
+			for (byte in bytes) {
+				val c0 = hexDigits[byte.toInt() and 0xf0 shr 4]
+				val c1 = hexDigits[byte.toInt() and 0xf]
+				stringBuffer.append(c0).append(c1)
+			}
+			md5 = stringBuffer.toString()
+		} catch (e: Exception) {
+			e.printStackTrace()
+		}
+		return md5
 	}
 }
