@@ -1,4 +1,4 @@
-package vip.mystery0.tools.base
+package vip.mystery0.tools.base.binding
 
 import android.view.LayoutInflater
 import android.view.View

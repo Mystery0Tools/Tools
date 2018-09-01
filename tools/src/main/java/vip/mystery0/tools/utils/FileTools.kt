@@ -33,7 +33,6 @@ import java.text.DecimalFormat
 import java.nio.channels.FileChannel
 import java.security.MessageDigest
 
-
 object FileTools {
 	/**
 	 * 从uri中获取路径
@@ -170,33 +169,12 @@ object FileTools {
 	/**
 	 * 格式化文件大小
 	 * @param file 需要格式化的文件
-	 * @return 格式化之后的字符串
-	 */
-	fun formatFileSize(file: File): String {
-		return formatFileSize(file, decimalNum = 2)
-	}
-
-
-	/**
-	 * 格式化文件大小
-	 * @param file 需要格式化的文件
 	 * @param decimalNum 要格式化的小数位数
 	 * @return 格式化之后的字符串
 	 */
-	fun formatFileSize(file: File, decimalNum: Int): String {
+	fun formatFileSize(file: File, decimalNum: Int = 2): String {
 		return if (!file.exists()) "0B" else formatFileSize(file.length(), decimalNum)
 	}
-
-
-	/**
-	 * 格式化文件大小
-	 * @param fileSize 需要格式化的文件
-	 * @return 格式化之后的字符串
-	 */
-	fun formatFileSize(fileSize: Long): String {
-		return formatFileSize(fileSize, decimalNum = 2)
-	}
-
 
 	/**
 	 * 格式化文件大小
@@ -204,7 +182,7 @@ object FileTools {
 	 * @param decimalNum 要格式化的小数位数
 	 * @return 格式化之后的字符串
 	 */
-	fun formatFileSize(fileSize: Long, decimalNum: Int): String {
+	fun formatFileSize(fileSize: Long, decimalNum: Int = 2): String {
 		val formatString = StringBuilder()
 		formatString.append("#.")
 		for (i in 0 until decimalNum)
