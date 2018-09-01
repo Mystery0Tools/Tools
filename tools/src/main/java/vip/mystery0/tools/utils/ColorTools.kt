@@ -21,17 +21,11 @@ import android.graphics.Color
 import androidx.annotation.ColorInt
 
 object ColorTools {
-	fun parseColor(@ColorInt color: Int): Int {
-		return parseColor(color, alpha = 255)
-	}
+	fun parseColor(@ColorInt color: Int): Int = parseColor(color, alpha = 255)
 
-	fun parseColor(@ColorInt color: Int, alpha: Int): Int {
-		return Color.parseColor(parseColorToString(color, alpha))
-	}
+	fun parseColor(@ColorInt color: Int, alpha: Int): Int = Color.parseColor(parseColorToString(color, alpha))
 
-	fun parseColorToString(@ColorInt color: Int): String {
-		return parseColorToString(color, alpha = 255)
-	}
+	fun parseColorToString(@ColorInt color: Int): String = parseColorToString(color, alpha = 255)
 
 	fun parseColorToString(@ColorInt color: Int, alpha: Int): String {
 		val stringBuilder = StringBuilder()
