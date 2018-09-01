@@ -4,6 +4,7 @@ import android.util.Log;
 
 import vip.mystery0.tools.base.BaseActivity;
 import vip.mystery0.tools.utils.CommandTools;
+import vip.mystery0.tools.utils.FileTools;
 
 public class MainActivity extends BaseActivity {
 	private static final String TAG = "MainActivity";
@@ -20,6 +21,7 @@ public class MainActivity extends BaseActivity {
 	@Override
 	public void initData() {
 		super.initData();
+		Log.i(TAG, "initData: " + FileTools.INSTANCE.formatFileSize(((long) 123456789), 2));
 		Log.i(TAG, "initData: " + CommandTools.INSTANCE.requestSU());
 		String[] cmds = new String[]{"echo test1", "echo test2", "echo test3"};
 		CommandTools.CommandResult result1 = CommandTools.INSTANCE.execCommands(cmds);
