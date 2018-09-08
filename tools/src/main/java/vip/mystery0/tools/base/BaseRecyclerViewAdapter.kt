@@ -17,7 +17,7 @@ abstract class BaseRecyclerViewAdapter<T : RecyclerView.ViewHolder, M : Any>(@La
 
 	fun createView(parent: ViewGroup): View = LayoutInflater.from(parent.context).inflate(itemLayoutId, parent, false)
 
-	fun addAll(newList: ArrayList<M>, isAnimationOneByOne: Boolean = true) {
+	fun addAll(newList: List<M>, isAnimationOneByOne: Boolean = true) {
 		if (isAnimationOneByOne) {
 			val lastIndex = list.size
 			newList.forEachIndexed { index, m ->
@@ -30,7 +30,7 @@ abstract class BaseRecyclerViewAdapter<T : RecyclerView.ViewHolder, M : Any>(@La
 		}
 	}
 
-	fun replaceAll(newList: ArrayList<M>, isAnimationOneByOne: Boolean = false) {
+	fun replaceAll(newList: List<M>, isAnimationOneByOne: Boolean = false) {
 		if (isAnimationOneByOne) {
 			list.clear()
 			notifyDataSetChanged()

@@ -27,7 +27,7 @@ abstract class BaseBindingRecyclerViewAdapter<M : Any, B : ViewDataBinding>(@Lay
 		setItemView(binding, position, items[position] as M)
 	}
 
-	fun addAll(newList: ArrayList<M>, isAnimationOneByOne: Boolean = true) {
+	fun addAll(newList: List<M>, isAnimationOneByOne: Boolean = true) {
 		if (isAnimationOneByOne) {
 			val lastIndex = items.size
 			newList.forEachIndexed { index, m ->
@@ -40,7 +40,7 @@ abstract class BaseBindingRecyclerViewAdapter<M : Any, B : ViewDataBinding>(@Lay
 		}
 	}
 
-	fun replaceAll(newList: ArrayList<M>, isAnimationOneByOne: Boolean = false) {
+	fun replaceAll(newList: List<M>, isAnimationOneByOne: Boolean = false) {
 		if (isAnimationOneByOne) {
 			items.clear()
 			notifyDataSetChanged()
