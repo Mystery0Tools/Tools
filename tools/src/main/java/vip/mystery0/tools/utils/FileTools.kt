@@ -297,7 +297,7 @@ object FileTools {
 	 * @param path 要删除的文件夹路径
 	 * @return 返回码
 	 */
-	fun deleteDir(path: String): Int = deleteDir(File(path))
+	fun deleteDir(path: String, isDeleteDir: Boolean = true): Int = deleteDir(File(path))
 
 	/**
 	 * 删除文件夹
@@ -306,16 +306,17 @@ object FileTools {
 	 * @see DONE 成功
 	 * @see FILE_NOT_EXIST 文件不存在
 	 */
-	fun deleteDir(dir: File): Int {
+	fun deleteDir(dir: File, isDeleteDir: Boolean = true): Int {
 		if (dir.exists()) {
 			if (dir.isDirectory) {
 				dir.listFiles().forEach {
 					deleteDir(it)
 				}
-			} else {
+				if (isDeleteDir)
+					dir.delete()
+			} else
 				dir.delete()
-				return DONE
-			}
+			return DONE
 		}
 		return FILE_NOT_EXIST
 	}

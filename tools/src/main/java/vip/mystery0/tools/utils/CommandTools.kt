@@ -1,17 +1,19 @@
 package vip.mystery0.tools.utils
 
+import android.util.Log
 import java.io.BufferedReader
 import java.io.DataOutputStream
 import java.io.InputStreamReader
 
 object CommandTools {
+	private val TAG = CommandTools::class.java.simpleName
 	private const val PERMISSION_DENIED = "Permission denied"
 	private const val CMD_SU = "su"
 	private const val CMD_EXIT = "exit\n"
 	private const val CMD_LINE_END = '\n'
 	private const val CMD_START = "sh"
 	private var process: Process? = null
-	var isPrintError = true
+	var isDebug = false
 
 	/**
 	 * 申请Root权限
@@ -30,6 +32,8 @@ object CommandTools {
 	 * @return       返回包含执行结果的对象
 	 */
 	fun execCommand(cmd: String): CommandResult {
+		if (isDebug)
+			Log.i(TAG, "exec: $cmd")
 		val result = CommandResult()
 		var dataOutputStream: DataOutputStream? = null
 		try {
@@ -42,7 +46,7 @@ object CommandTools {
 			result.errorMessage = BufferedReader(InputStreamReader(process!!.errorStream)).readText()
 			result.successMessage = BufferedReader(InputStreamReader(process!!.inputStream)).readText()
 		} catch (e: Exception) {
-			if (isPrintError)
+			if (isDebug)
 				e.printStackTrace()
 			result.errorMessage = e.message
 			result.successMessage = ""
@@ -60,6 +64,8 @@ object CommandTools {
 	 * @return       返回包含执行结果的对象
 	 */
 	fun execRootCommand(cmd: String): CommandResult {
+		if (isDebug)
+			Log.i(TAG, "exec root: $cmd")
 		val result = CommandResult()
 		var dataOutputStream: DataOutputStream? = null
 		try {
@@ -74,7 +80,7 @@ object CommandTools {
 			result.errorMessage = BufferedReader(InputStreamReader(process!!.errorStream)).readText()
 			result.successMessage = BufferedReader(InputStreamReader(process!!.inputStream)).readText()
 		} catch (e: Exception) {
-			if (isPrintError)
+			if (isDebug)
 				e.printStackTrace()
 			result.errorMessage = e.message
 			result.successMessage = ""
@@ -99,6 +105,8 @@ object CommandTools {
 			process = Runtime.getRuntime().exec(CMD_START)
 			dataOutputStream = DataOutputStream(process!!.outputStream)
 			for (i in cmds.indices) {
+				if (isDebug)
+					Log.i(TAG, "exec: ${cmds[i]}")
 				dataOutputStream.writeBytes("${cmds[i]}$CMD_LINE_END")
 				dataOutputStream.flush()
 			}
@@ -108,7 +116,7 @@ object CommandTools {
 			result.errorMessage = BufferedReader(InputStreamReader(process!!.errorStream)).readText()
 			result.successMessage = BufferedReader(InputStreamReader(process!!.inputStream)).readText()
 		} catch (e: Exception) {
-			if (isPrintError)
+			if (isDebug)
 				e.printStackTrace()
 			result.errorMessage = e.message
 			result.successMessage = ""
@@ -133,6 +141,8 @@ object CommandTools {
 			process = Runtime.getRuntime().exec(CMD_SU)
 			dataOutputStream = DataOutputStream(process!!.outputStream)
 			for (i in cmds.indices) {
+				if (isDebug)
+					Log.i(TAG, "exec root: ${cmds[i]}")
 				dataOutputStream.writeBytes("${cmds[i]}$CMD_LINE_END")
 				dataOutputStream.flush()
 			}
@@ -142,7 +152,7 @@ object CommandTools {
 			result.errorMessage = BufferedReader(InputStreamReader(process!!.errorStream)).readText()
 			result.successMessage = BufferedReader(InputStreamReader(process!!.inputStream)).readText()
 		} catch (e: Exception) {
-			if (isPrintError)
+			if (isDebug)
 				e.printStackTrace()
 			result.errorMessage = e.message
 			result.successMessage = ""
@@ -158,6 +168,8 @@ object CommandTools {
 	 * 终止进程
 	 */
 	fun killProcess() {
+		if (isDebug)
+			Log.i(TAG, "kill process")
 		process?.destroy()
 	}
 
