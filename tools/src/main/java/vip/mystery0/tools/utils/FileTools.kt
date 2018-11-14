@@ -203,6 +203,29 @@ object FileTools {
 	const val FILE_NOT_EXIST = 102
 	const val MAKE_DIR_ERROR = 103
 
+	fun copyDir(inputPath: String, outputPath: String): Int {
+		val inputFile = File(inputPath)
+		val outputFile = File(outputPath)
+		if (!inputFile.exists())
+			return FILE_NOT_EXIST
+		if (!outputFile.exists() && !outputFile.mkdirs())
+			return MAKE_DIR_ERROR
+		return try {
+			inputFile.listFiles()
+					.forEach {
+						val pathInDir = it.absolutePath.substring(inputPath.length)
+						when {
+							it.isFile -> copyFile(it.absolutePath, "$outputPath$pathInDir")
+							it.isDirectory -> copyDir(it.absolutePath, "$outputPath$pathInDir")
+						}
+					}
+			DONE
+		} catch (e: Exception) {
+			e.printStackTrace()
+			ERROR
+		}
+	}
+
 	/**
 	 * 拷贝文件
 	 * @param inputPath  输入路径
