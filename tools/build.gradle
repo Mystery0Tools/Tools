@@ -29,7 +29,7 @@ android {
 		minSdkVersion 18
 		targetSdkVersion 28
 		versionCode 1
-		versionName "1.0"
+		versionName POM_VERSION
 
 		vectorDrawables.useSupportLibrary = true
 	}
@@ -44,3 +44,6 @@ dependencies {
 repositories {
 	mavenCentral()
 }
+
+// 在底部加上这句
+apply from: '../push.gradle'
