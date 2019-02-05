@@ -17,11 +17,16 @@
 
 package vip.mystery0.tools.base
 
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 abstract class BaseActivity(@LayoutRes private val layoutId: Int?) : AppCompatActivity() {
+	val permissionArray: ArrayList<Array<String>> by lazy { ArrayList<Array<String>>() }
+	val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList<(Int, IntArray) -> Unit>() }
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -45,4 +50,37 @@ abstract class BaseActivity(@LayoutRes private val layoutId: Int?) : AppCompatAc
 	open fun loadDataToView() {}
 	open fun requestData() {}
 	open fun monitor() {}
+
+	fun reRequestPermission(requestCode: Int) {
+		if (requestCode < permissionMap.size)
+			requestPermissions(permissionArray[requestCode], permissionMap[requestCode])
+	}
+
+	fun requestPermissions(permissionArray: Array<String>, requestResult: (Int, IntArray) -> Unit) {
+		val needRequestPermissionArray = permissionArray.filter { !checkPermission(it) }
+		if (needRequestPermissionArray.isEmpty()) {
+			requestResult.invoke(-1, IntArray(0))
+			return
+		}
+		val code = permissionMap.size
+		this.permissionArray.add(permissionArray)
+		permissionMap.add(requestResult)
+		ActivityCompat.requestPermissions(this, needRequestPermissionArray.toTypedArray(), code)
+	}
+
+	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+		if (requestCode < permissionMap.size)
+			permissionMap[requestCode].invoke(requestCode, grantResults)
+	}
+
+	override fun onDestroy() {
+		permissionArray.clear()
+		permissionMap.clear()
+		super.onDestroy()
+	}
+
+	fun checkPermissions(permissions: Array<out String>): BooleanArray = permissions.map { checkPermission(it) }.toBooleanArray()
+
+	fun checkPermission(permission: String): Boolean = ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
 }
