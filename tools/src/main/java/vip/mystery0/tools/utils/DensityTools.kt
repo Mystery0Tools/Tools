@@ -17,16 +17,17 @@
 
 package vip.mystery0.tools.utils
 
-import android.content.Context
+import vip.mystery0.tools.ToolsClient
 
 object DensityTools {
+	private val context by lazy { ToolsClient.getContext() }
 	/**
 	 * dp转px
 	 * @param context 上下文
 	 * @param dpValue dp值
 	 * @return 转换之后的px值
 	 */
-	fun dp2px(context: Context, dpValue: Float): Int = (dpValue * context.resources.displayMetrics.density + 0.5).toInt()
+	fun dp2px(dpValue: Float): Int = (dpValue * context.resources.displayMetrics.density + 0.5).toInt()
 
 	/**
 	 * dp转px
@@ -34,7 +35,7 @@ object DensityTools {
 	 * @param dpValue dp值
 	 * @return 转换之后的px值
 	 */
-	fun dp2px(context: Context, dpValue: Int): Float = dpValue * context.resources.displayMetrics.density + 0.5f
+	fun dp2px(dpValue: Int): Float = dpValue * context.resources.displayMetrics.density + 0.5f
 
 	/**
 	 * px转dp
@@ -42,7 +43,7 @@ object DensityTools {
 	 * @param pxValue px值
 	 * @return 转换之后的dp值
 	 */
-	fun px2dp(context: Context, pxValue: Float): Int = (pxValue / context.resources.displayMetrics.density + 0.5).toInt()
+	fun px2dp(pxValue: Float): Int = (pxValue / context.resources.displayMetrics.density + 0.5).toInt()
 
 	/**
 	 * px转dp
@@ -50,14 +51,14 @@ object DensityTools {
 	 * @param pxValue px值
 	 * @return 转换之后的dp值
 	 */
-	fun px2dp(context: Context, pxValue: Int): Float = pxValue / context.resources.displayMetrics.density + 0.5f
+	fun px2dp(pxValue: Int): Float = pxValue / context.resources.displayMetrics.density + 0.5f
 
 	/**
 	 * 获取屏幕宽度
 	 * @param context 上下文
 	 * @return px值
 	 */
-	fun getScreenWidth(context: Context): Int = context.resources.displayMetrics.widthPixels
+	fun getScreenWidth(): Int = context.resources.displayMetrics.widthPixels
 
 
 	/**
@@ -65,5 +66,5 @@ object DensityTools {
 	 * @param context 上下文
 	 * @return px值
 	 */
-	fun getScreenHeight(context: Context): Int = context.resources.displayMetrics.heightPixels
+	fun getScreenHeight(): Int = context.resources.displayMetrics.heightPixels
 }
