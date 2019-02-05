@@ -4,7 +4,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.preference.Preference
 import androidx.annotation.XmlRes
-import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceFragmentCompat
