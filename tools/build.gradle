@@ -30,7 +30,6 @@ android {
 		targetSdkVersion 28
 		versionCode 1
 		versionName POM_VERSION
-
 		vectorDrawables.useSupportLibrary = true
 	}
 }
@@ -38,8 +37,9 @@ android {
 dependencies {
 	implementation 'androidx.appcompat:appcompat:1.0.2'
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-	implementation 'androidx.recyclerview:recyclerview:1.0.0'
-	implementation 'androidx.preference:preference:1.0.0'
+	compileOnly 'androidx.recyclerview:recyclerview:1.0.0'
+	compileOnly 'androidx.preference:preference:1.0.0'
+	compileOnly 'com.squareup.okhttp3:okhttp:3.12.1'
 }
 repositories {
 	mavenCentral()
