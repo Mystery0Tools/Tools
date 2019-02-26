@@ -27,34 +27,6 @@ abstract class BaseBindingRecyclerViewAdapter<M : Any, B : ViewDataBinding>(@Lay
 		setItemView(binding, position, items[position] as M)
 	}
 
-	fun addAll(newList: List<M>, isAnimationOneByOne: Boolean = true) {
-		if (isAnimationOneByOne) {
-			val lastIndex = items.size
-			newList.forEachIndexed { index, m ->
-				items.add(m)
-				notifyItemInserted(lastIndex + index)
-			}
-		} else {
-			items.addAll(newList)
-			notifyDataSetChanged()
-		}
-	}
-
-	fun replaceAll(newList: List<M>, isAnimationOneByOne: Boolean = false) {
-		if (isAnimationOneByOne) {
-			items.clear()
-			notifyDataSetChanged()
-			newList.forEachIndexed { index, m ->
-				items.add(m)
-				notifyItemInserted(index)
-			}
-		} else {
-			items.clear()
-			items.addAll(newList)
-			notifyDataSetChanged()
-		}
-	}
-
 	override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
 		super.onAttachedToRecyclerView(recyclerView)
 		if (::itemsChangeCallback.isInitialized)
