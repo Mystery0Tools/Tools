@@ -340,4 +340,34 @@ object FileTools {
 		}
 		return md5
 	}
+
+	fun <T> write(filePath: String, data: T) {
+		val file = File(filePath)
+		if (file.exists()) file.delete()
+		if (!file.parentFile.exists()) file.parentFile.mkdirs()
+		var objectOutputStream: ObjectOutputStream? = null
+		try {
+			objectOutputStream = ObjectOutputStream(FileOutputStream(file))
+			objectOutputStream.writeObject(data)
+		} catch (ignore: Exception) {
+		} finally {
+			objectOutputStream?.close()
+		}
+	}
+
+	fun <T> read(filePath: String): T? {
+		val file = File(filePath)
+		if (!file.exists()) return null
+		var objectInputStream: ObjectInputStream? = null
+		var data: T? = null
+		try {
+			objectInputStream = ObjectInputStream(FileInputStream(file))
+			@Suppress("UNCHECKED_CAST")
+			data = objectInputStream.readObject() as T
+		} catch (ignore: Exception) {
+		} finally {
+			objectInputStream?.close()
+		}
+		return data
+	}
 }
