@@ -297,7 +297,7 @@ object FileTools {
 	 * @param path 要删除的文件夹路径
 	 * @return 返回码
 	 */
-	fun deleteDir(path: String, isDeleteDir: Boolean = true): Int = deleteDir(File(path))
+	fun deleteDir(path: String, isDeleteDir: Boolean = true): Int = deleteDir(File(path), isDeleteDir)
 
 	/**
 	 * 删除文件夹
