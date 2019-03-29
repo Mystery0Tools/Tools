@@ -1,6 +1,8 @@
 package vip.mystery0.tools.utils
 
 import android.app.Activity
+import android.app.Application
+import android.os.Bundle
 import java.util.*
 
 /**
@@ -8,13 +10,17 @@ import java.util.*
  * Activity管理类
  */
 object ActivityManagerTools {
-	private var activityStack: Stack<Activity> = Stack()
+	private val activityStack by lazy { Stack<Activity>() }
+
 	/**
 	 * 添加Activity到堆栈
 	 */
-	fun addActivity(activity: Activity) {
-		activityStack.add(activity)
-	}
+	fun addActivity(activity: Activity?) = activityStack.add(activity)
+
+	/**
+	 * 移除Activity到堆栈
+	 */
+	fun removeActivity(activity: Activity?) = activityStack.remove(activity)
 
 	/**
 	 * 获取当前Activity（堆栈中最后一个压入的）
@@ -38,39 +44,57 @@ object ActivityManagerTools {
 	/**
 	 * 结束当前Activity（堆栈中最后一个压入的）
 	 */
-	fun finishActivity() {
-		activityStack.lastElement()?.finish()
-	}
+	fun finishActivity() = activityStack.removeAt(activityStack.lastIndex)?.finish()
 
 	/**
 	 * 结束指定的Activity
 	 */
-	fun finishActivity(activity: Activity) {
+	fun finishActivity(activity: Activity?) {
 		activityStack.remove(activity)
-		activity.finish()
+		activity?.finish()
 	}
 
 	/**
 	 * 结束指定类名的Activity
 	 */
 	fun finishActivity(cls: Class<*>) {
-		activityStack
-				.filter { it.javaClass == cls }
-				.forEach { finishActivity(it) }
+		activityStack.filter { it.javaClass == cls }.forEach { finishActivity(it) }
 	}
 
 	/**
 	 * 结束所有Activity
 	 */
 	fun finishAllActivity() {
-		var i = 0
-		val size = activityStack.size
-		while (i < size) {
-			if (null != activityStack[i]) {
-				activityStack[i].finish()
-			}
-			i++
+		activityStack.forEach {
+			it?.finish()
 		}
 		activityStack.clear()
+	}
+
+	fun registerActivityLifecycle(application: Application) {
+		application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
+			override fun onActivityPaused(activity: Activity?) {
+			}
+
+			override fun onActivityResumed(activity: Activity?) {
+			}
+
+			override fun onActivityStarted(activity: Activity?) {
+			}
+
+			override fun onActivityDestroyed(activity: Activity?) {
+				removeActivity(activity)
+			}
+
+			override fun onActivitySaveInstanceState(activity: Activity?, outState: Bundle?) {
+			}
+
+			override fun onActivityStopped(activity: Activity?) {
+			}
+
+			override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
+				addActivity(activity)
+			}
+		})
 	}
 }
