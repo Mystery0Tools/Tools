@@ -24,6 +24,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
@@ -39,13 +40,16 @@ object FileTools {
 	 * @param context 上下文
 	 * @param uri 需要获取路径的uri对象
 	 * @return 提取到的路径
+	 *
+	 * @Deprecated 1.7.2
+	 * @see cloneUriToFile(Context,Uri,File)
 	 */
+	@Deprecated("事实上，在不同设备上，这个方法很容易出问题，比如说不适配第三方图库，所以在1.7.2中标记为过时，请使用cloneUriToFile方法将Uri中的内容存储到临时文件中")
 	fun getPath(context: Context, uri: Uri): String? {
-		return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) { // api >= 19
+		return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)  // api >= 19
 			getRealPathFromUriAboveApi19(context, uri)
-		} else {// api < 19
+		else // api < 19
 			getRealPathFromUriBelowAPI19(context, uri)
-		}
 	}
 
 	/**
@@ -55,9 +59,7 @@ object FileTools {
 	 * @param uri     图片的Uri
 	 * @return 如果Uri对应的图片存在, 那么返回该图片的绝对路径, 否则返回null
 	 */
-	private fun getRealPathFromUriBelowAPI19(context: Context, uri: Uri): String? {
-		return getDataColumn(context, uri, null, null)
-	}
+	private fun getRealPathFromUriBelowAPI19(context: Context, uri: Uri): String? = getDataColumn(context, uri, null, null)
 
 	/**
 	 * 适配api19及以上,根据uri获取图片的绝对路径
@@ -115,16 +117,29 @@ object FileTools {
 	 * @param uri the Uri to check
 	 * @return Whether the Uri authority is MediaProvider
 	 */
-	private fun isMediaDocument(uri: Uri): Boolean {
-		return "com.android.providers.media.documents" == uri.authority
-	}
+	private fun isMediaDocument(uri: Uri): Boolean = "com.android.providers.media.documents" == uri.authority
 
 	/**
 	 * @param uri the Uri to check
 	 * @return Whether the Uri authority is DownloadsProvider
 	 */
-	private fun isDownloadsDocument(uri: Uri): Boolean {
-		return "com.android.providers.downloads.documents" == uri.authority
+	private fun isDownloadsDocument(uri: Uri): Boolean = "com.android.providers.downloads.documents" == uri.authority
+
+
+	/**
+	 * 将Uri的内容克隆到临时文件，然后返回临时文件
+	 *
+	 * @param context 上下文
+	 * @param uri 选择器返回的Uri
+	 * @param file 临时文件
+	 */
+	fun cloneUriToFile(context: Context, uri: Uri, file: File) {
+		val parent = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) ?: return
+		if (!parent.exists())
+			parent.mkdirs()
+		if (parent.isDirectory || parent.delete() && parent.mkdirs()) {
+			FileTools.saveFile(context.contentResolver.openInputStream(uri), file)
+		}
 	}
 
 	/**
