@@ -26,10 +26,7 @@ abstract class BasePreferenceFragment(@XmlRes private val preferencesResId: Int)
 
 	open fun monitor() {}
 
-	fun <T : Preference> findPreferenceById(@StringRes id: Int): T {
-		@Suppress("UNCHECKED_CAST")
-		return findPreference(getString(id)) as T
-	}
+	fun <T : Preference> findPreferenceById(@StringRes id: Int): T = findPreference(getString(id))!!
 
 	fun reRequestPermission(requestCode: Int) {
 		if (requestCode < permissionMap.size)

@@ -1,5 +1,6 @@
 package vip.mystery0.tools.utils
 
+import android.os.Build
 import vip.mystery0.tools.ToolsClient
 
 object PackageTools {
@@ -15,4 +16,8 @@ object PackageTools {
 				.map { it.packageName }// 获取所有已安装程序的包信息
 		return installedPackages.containsAll(arrayList)
 	}
+
+	fun isAfter(code: Int, exclude: Boolean = false): Boolean = if (exclude) Build.VERSION.SDK_INT > code else Build.VERSION.SDK_INT >= code
+
+	fun isBefore(code: Int, exclude: Boolean = false): Boolean = if (exclude) Build.VERSION.SDK_INT < code else Build.VERSION.SDK_INT <= code
 }
