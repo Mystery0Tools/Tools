@@ -4,6 +4,11 @@ import android.util.Log
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 
+abstract class JustCompleteObserver<T> : OnlyCompleteObserver<T>() {
+	override fun onError(e: Throwable) {
+	}
+}
+
 abstract class OnlyCompleteObserver<T> : Observer<T> {
 	private var data: T? = null
 
