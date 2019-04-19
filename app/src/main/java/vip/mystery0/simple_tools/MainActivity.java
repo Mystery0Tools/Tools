@@ -27,22 +27,10 @@ public class MainActivity extends BaseActivity {
 	@Override
 	public void initData() {
 		super.initData();
-		startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE), 1);
 	}
 
 	@Override
 	public void initView() {
 		super.initView();
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == 1 && resultCode == RESULT_OK) {
-			Uri treeUri = data.getData();
-			Log.i(TAG, "onActivityResult: " + treeUri);
-			Uri child = DocumentsContract.buildChildDocumentsUriUsingTree(treeUri, "test");
-//			SAFFileTools.INSTANCE.mkdirs(this, child);
-		}
 	}
 }
