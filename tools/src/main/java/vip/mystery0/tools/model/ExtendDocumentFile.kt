@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
+import vip.mystery0.tools.ToolsClient
 import vip.mystery0.tools.utils.PackageTools
 import vip.mystery0.tools.utils.SAFFileTools.getChildFile
 import vip.mystery0.tools.utils.SAFFileTools.getChildDirectory
@@ -38,6 +39,8 @@ class ExtendDocumentFile : File {
 		this.documentFile = documentFile
 	}
 
+	fun getOriginDocumentFile(): DocumentFile = documentFile
+
 	fun getChildFile(fileName: String, deleteWhenNotFile: Boolean = true): ExtendDocumentFile? {
 		val child = documentFile.getChildFile(fileName, deleteWhenNotFile) ?: return null
 		return ExtendDocumentFile(child)
@@ -48,7 +51,10 @@ class ExtendDocumentFile : File {
 		return ExtendDocumentFile(dir)
 	}
 
-	fun mkdirs(rootTreeUri: Uri): Boolean = documentFile.mkdirs(Factory.context, rootTreeUri)
+	fun isChildExist(childName: String): Boolean = documentFile.findFile(childName)?.exists()
+			?: false
+
+	fun mkdirs(rootTreeUri: Uri): Boolean = documentFile.mkdirs(ToolsClient.getContext(), rootTreeUri)
 
 	fun renameTo(dest: ExtendDocumentFile?): Boolean {
 		if (dest == null)
@@ -56,8 +62,8 @@ class ExtendDocumentFile : File {
 		var fileInputStream: FileInputStream? = null
 		var fileOutputStream: FileOutputStream? = null
 		try {
-			fileInputStream = FileInputStream(Factory.context.contentResolver.openFileDescriptor(dest.uri, "r")?.fileDescriptor)
-			fileOutputStream = FileOutputStream(Factory.context.contentResolver.openFileDescriptor(dest.uri, "w")?.fileDescriptor)
+			fileInputStream = FileInputStream(ToolsClient.getContext().contentResolver.openFileDescriptor(uri, "r")?.fileDescriptor)
+			fileOutputStream = FileOutputStream(ToolsClient.getContext().contentResolver.openFileDescriptor(dest.uri, "w")?.fileDescriptor)
 			val bytes = ByteArray(1024 * 1024 * 10)
 			var readCount = 0
 			while (readCount != -1) {
@@ -216,22 +222,17 @@ class ExtendDocumentFile : File {
 
 	override fun exists(): Boolean = documentFile.exists()
 
-	@SuppressLint("StaticFieldLeak")
 	object Factory {
-		lateinit var context: Context
-			private set
-
 		@SuppressLint("NewApi")
-		fun createByTreeUri(context: Context, uri: Uri): ExtendDocumentFile? {
+		fun createByTreeUri(uri: Uri): ExtendDocumentFile? {
 			if (PackageTools.isAfter(PackageTools.VERSION_N) && !DocumentsContract.isTreeUri(uri))
 				return null
-			return createByDocumentFile(context, DocumentFile.fromTreeUri(context, uri))
+			return createByDocumentFile(DocumentFile.fromTreeUri(ToolsClient.getContext(), uri))
 		}
 
-		fun createBySingleUri(context: Context, uri: Uri): ExtendDocumentFile? = createByDocumentFile(context, DocumentFile.fromSingleUri(context, uri))
+		fun createBySingleUri(uri: Uri): ExtendDocumentFile? = createByDocumentFile(DocumentFile.fromSingleUri(ToolsClient.getContext(), uri))
 
-		fun createByDocumentFile(context: Context, file: DocumentFile?): ExtendDocumentFile? {
-			this.context = context.applicationContext
+		fun createByDocumentFile(file: DocumentFile?): ExtendDocumentFile? {
 			if (file == null) return null
 			return ExtendDocumentFile(file)
 		}
