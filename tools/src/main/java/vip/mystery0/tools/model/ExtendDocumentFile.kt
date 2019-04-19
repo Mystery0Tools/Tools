@@ -35,27 +35,55 @@ class ExtendDocumentFile : File {
 		throw UnsupportedOperationException("ExtendDocumentFile 不支持此种构造函数，请使用Factory")
 	}
 
-	constructor(documentFile: DocumentFile) : super("") {
+	private constructor(documentFile: DocumentFile) : super("") {
 		this.documentFile = documentFile
 	}
 
+	/**
+	 * 获取原始DocumentFile
+	 * @return 原始文件
+	 */
 	fun getOriginDocumentFile(): DocumentFile = documentFile
 
+	/**
+	 * 获取子文件，如果不存在自动创建
+	 * @param fileName 子文件文件名
+	 * @param deleteWhenNotFile 如果子文件存在但是不是文件时是否删除创建新的
+	 * @return 子文件
+	 */
 	fun getChildFile(fileName: String, deleteWhenNotFile: Boolean = true): ExtendDocumentFile? {
 		val child = documentFile.getChildFile(fileName, deleteWhenNotFile) ?: return null
 		return ExtendDocumentFile(child)
 	}
 
+	/**
+	 * 获取子目录，如果不存在自动创建
+	 * @param dirName 子目录名称
+	 * @param deleteWhenNotDirectory 如果子目录存在但是不是目录时是否删除创建新的
+	 * @return 子目录
+	 */
 	fun getChildDirectory(dirName: String, deleteWhenNotDirectory: Boolean = true): ExtendDocumentFile? {
 		val dir = documentFile.getChildDirectory(dirName, deleteWhenNotDirectory) ?: return null
 		return ExtendDocumentFile(dir)
 	}
 
+	/**
+	 * 判断子文件是否存在，仅判断
+	 * @param childName 子文件
+	 * @return 是否存在
+	 */
 	fun isChildExist(childName: String): Boolean = documentFile.findFile(childName)?.exists()
 			?: false
 
+	/**
+	 * 解析层级关系递归创建目录
+	 */
 	fun mkdirs(rootTreeUri: Uri): Boolean = documentFile.mkdirs(ToolsClient.getContext(), rootTreeUri)
 
+	/**
+	 * 重命名
+	 * 本质实现是移动文件
+	 */
 	fun renameTo(dest: ExtendDocumentFile?): Boolean {
 		if (dest == null)
 			return false
