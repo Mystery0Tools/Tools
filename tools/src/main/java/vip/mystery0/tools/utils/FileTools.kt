@@ -190,8 +190,8 @@ object FileTools {
 		try {
 			fileInputStream = FileInputStream(inputPath)
 			fileOutputStream = FileOutputStream(outputPath)
-			val bytes = ByteArray(1024 * 1024 * 10)
-			var readCount = 0
+			val bytes = ByteArray(1024 * 1024)
+			var readCount = fileInputStream.read(bytes)
 			while (readCount != -1) {
 				fileOutputStream.write(bytes, 0, readCount)
 				readCount = fileInputStream.read(bytes)
@@ -209,14 +209,15 @@ object FileTools {
 	 * 将文件的内容写入到输出流中
 	 * @param inputFile
 	 * @param fileOutputStream
+	 * @param closeStreamFinally 是否自动关闭流
 	 * @return 拷贝结果
 	 */
-	fun copyFileToOutputStream(inputFile: File, fileOutputStream: FileOutputStream?): Boolean {
+	fun copyFileToOutputStream(inputFile: File, fileOutputStream: OutputStream?, closeStreamFinally: Boolean = true): Boolean {
 		var fileInputStream: FileInputStream? = null
 		try {
 			fileInputStream = FileInputStream(inputFile)
-			val bytes = ByteArray(1024 * 1024 * 10)
-			var readCount = 0
+			val bytes = ByteArray(1024 * 1024)
+			var readCount = fileInputStream.read(bytes)
 			while (readCount != -1) {
 				fileOutputStream?.write(bytes, 0, readCount)
 				readCount = fileInputStream.read(bytes)
@@ -227,7 +228,8 @@ object FileTools {
 			return false
 		} finally {
 			fileInputStream?.close()
-			fileOutputStream?.close()
+			if (closeStreamFinally)
+				fileOutputStream?.close()
 		}
 	}
 
@@ -235,9 +237,10 @@ object FileTools {
 	 * 将输入流的数据存储到文件中
 	 * @param inputStream 输入流
 	 * @param file 要存储到的文件
+	 * @param closeStreamFinally 是否自动关闭流
 	 * @return 存储结果
 	 */
-	fun saveFile(inputStream: InputStream?, file: File): Boolean {
+	fun saveFile(inputStream: InputStream?, file: File, closeStreamFinally: Boolean = true): Boolean {
 		var outputStream: OutputStream? = null
 		try {
 			if (!file.parentFile.exists())
@@ -258,7 +261,8 @@ object FileTools {
 			e.printStackTrace()
 			return false
 		} finally {
-			inputStream?.close()
+			if (closeStreamFinally)
+				inputStream?.close()
 			outputStream?.close()
 		}
 	}
