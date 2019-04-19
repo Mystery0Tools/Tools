@@ -55,7 +55,7 @@ object FileTools {
 		if (!parent.exists())
 			parent.mkdirs()
 		if (parent.isDirectory || parent.delete() && parent.mkdirs()) {
-			FileTools.saveFile(context.contentResolver.openInputStream(uri), file)
+			saveFile(context.contentResolver.openInputStream(uri), file)
 		}
 	}
 
@@ -135,6 +135,16 @@ object FileTools {
 	const val FILE_NOT_EXIST = 102
 	const val MAKE_DIR_ERROR = 103
 
+	/**
+	 * 拷贝目录的所有内容
+	 * @param inputPath 输入路径
+	 * @param outputPath 输出路径
+	 * @return 返回码
+	 * @see FILE_NOT_EXIST 输入的文件不存在
+	 * @see MAKE_DIR_ERROR 输出文件父级目录创建失败
+	 * @see DONE 完成
+	 * @see ERROR 出错
+	 */
 	fun copyDir(inputPath: String, outputPath: String): Int {
 		val inputFile = File(inputPath)
 		val outputFile = File(outputPath)
@@ -196,31 +206,60 @@ object FileTools {
 	}
 
 	/**
+	 * 将文件的内容写入到输出流中
+	 * @param inputFile
+	 * @param fileOutputStream
+	 * @return 拷贝结果
+	 */
+	fun copyFileToOutputStream(inputFile: File, fileOutputStream: FileOutputStream?): Boolean {
+		var fileInputStream: FileInputStream? = null
+		try {
+			fileInputStream = FileInputStream(inputFile)
+			val bytes = ByteArray(1024 * 1024 * 10)
+			var readCount = 0
+			while (readCount != -1) {
+				fileOutputStream?.write(bytes, 0, readCount)
+				readCount = fileInputStream.read(bytes)
+			}
+			return true
+		} catch (e: Exception) {
+			e.printStackTrace()
+			return false
+		} finally {
+			fileInputStream?.close()
+			fileOutputStream?.close()
+		}
+	}
+
+	/**
 	 * 将输入流的数据存储到文件中
 	 * @param inputStream 输入流
 	 * @param file 要存储到的文件
 	 * @return 存储结果
 	 */
 	fun saveFile(inputStream: InputStream?, file: File): Boolean {
+		var outputStream: OutputStream? = null
 		try {
 			if (!file.parentFile.exists())
 				file.parentFile.mkdirs()
 			if (file.exists())
 				file.delete()
 			val dataInputStream = DataInputStream(BufferedInputStream(inputStream))
-			val dataOutputStream = DataOutputStream(BufferedOutputStream(FileOutputStream(file)))
+			outputStream = DataOutputStream(BufferedOutputStream(FileOutputStream(file)))
 			val bytes = ByteArray(1024 * 1024)
 			while (true) {
 				val read = dataInputStream.read(bytes)
 				if (read <= 0)
 					break
-				dataOutputStream.write(bytes, 0, read)
+				outputStream.write(bytes, 0, read)
 			}
-			dataOutputStream.close()
 			return true
 		} catch (e: Exception) {
 			e.printStackTrace()
 			return false
+		} finally {
+			inputStream?.close()
+			outputStream?.close()
 		}
 	}
 
