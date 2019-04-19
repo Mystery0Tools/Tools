@@ -39,7 +39,7 @@ object SAFFileTools {
 		var dir = this.findFile(dirName)
 		if (dir == null || !dir.exists())
 			return this.createDirectory(dirName)
-		if (!dir.isFile && deleteWhenNotDirectory) {
+		if (!dir.isDirectory && deleteWhenNotDirectory) {
 			dir.delete()
 			dir = this.createDirectory(dirName)
 		}
