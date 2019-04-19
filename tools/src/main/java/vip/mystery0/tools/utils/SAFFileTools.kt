@@ -1,19 +1,15 @@
 package vip.mystery0.tools.utils
 
-import android.annotation.TargetApi
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.provider.DocumentsContract
-import androidx.annotation.RequiresApi
 import androidx.documentfile.provider.DocumentFile
 import vip.mystery0.tools.factory.MimeTypeFactory
 
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 object SAFFileTools {
 	/**
 	 * 从当前路径获取子文件，如果不存在就创建
-	 * @param parent 父级文件
 	 * @param fileName 子文件名称
 	 * @param deleteWhenNotFile 当子文件存在但是不是文件时是否需要删除重新创建
 	 * @return 子文件或者创建失败为空
@@ -33,7 +29,6 @@ object SAFFileTools {
 
 	/**
 	 * 从当前路径获取子目录，如果不存在就创建
-	 * @param parent 父级文件
 	 * @param dirName 子目录名称
 	 * @param deleteWhenNotDirectory 当子目录存在但是不是目录时是否需要删除重新创建
 	 * @return 子目录或者创建失败为空
@@ -57,9 +52,9 @@ object SAFFileTools {
 	 * @param rootTreeUri 根目录的TreeUri
 	 * @return 创建结果
 	 */
-	@TargetApi(Build.VERSION_CODES.N)
+	@SuppressLint("NewApi")
 	fun DocumentFile?.mkdirs(context: Context, rootTreeUri: Uri): Boolean {
-		if (!DocumentsContract.isTreeUri(rootTreeUri))
+		if (PackageTools.isAfter(PackageTools.VERSION_N) && !DocumentsContract.isTreeUri(rootTreeUri))
 			return false
 		fun DocumentFile?.checkParentUri(rootTreeUri: Uri, list: ArrayList<String>) {
 			if (this == null)
@@ -81,9 +76,9 @@ object SAFFileTools {
 	 * @param levelList 层级关系
 	 * @return 创建结果
 	 */
-	@TargetApi(Build.VERSION_CODES.N)
+	@SuppressLint("NewApi")
 	fun mkdirs(context: Context, rootTreeUri: Uri, levelList: List<String>): Boolean {
-		if (!DocumentsContract.isTreeUri(rootTreeUri))
+		if (PackageTools.isAfter(PackageTools.VERSION_N) && !DocumentsContract.isTreeUri(rootTreeUri))
 			return false
 		var parent = DocumentFile.fromTreeUri(context, rootTreeUri)
 		levelList.forEach {
