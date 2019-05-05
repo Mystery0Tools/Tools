@@ -115,6 +115,8 @@ object FileTools {
 	 * @return 格式化之后的字符串
 	 */
 	fun formatFileSize(fileSize: Long, decimalNum: Int = 2): String {
+		if (fileSize == 0L)
+			return "0B"
 		val formatString = StringBuilder()
 		formatString.append("#.")
 		for (i in 0 until decimalNum)
