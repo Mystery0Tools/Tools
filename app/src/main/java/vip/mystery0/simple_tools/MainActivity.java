@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import vip.mystery0.tools.base.BaseActivity;
 import vip.mystery0.tools.utils.CommandTools;
 import vip.mystery0.tools.utils.FileTools;
+import vip.mystery0.view.ProgressDialog;
 
 public class MainActivity extends BaseActivity {
 	private static final String TAG = "MainActivity";
@@ -27,6 +28,43 @@ public class MainActivity extends BaseActivity {
 	@Override
 	public void initData() {
 		super.initData();
+		final ProgressDialog progressDialog = new ProgressDialog(this);
+		progressDialog.setTitle("title");
+		progressDialog.setMessage("message");
+		progressDialog.show();
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				int i = 0;
+				while (i <= 100) {
+					final int finalI = i;
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							progressDialog.setProgress(finalI);
+						}
+					});
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					i++;
+				}
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						progressDialog.cancel();
+					}
+				});
+			}
+		}).start();
 	}
 
 	@Override
