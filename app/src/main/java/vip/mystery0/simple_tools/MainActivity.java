@@ -37,7 +37,7 @@ public class MainActivity extends BaseActivity {
 			@Override
 			public void run() {
 				int i = 0;
-				while (i <= 100) {
+				while (i <= 10) {
 					final int finalI = i;
 					runOnUiThread(new Runnable() {
 						@Override
@@ -70,5 +70,11 @@ public class MainActivity extends BaseActivity {
 	@Override
 	public void initView() {
 		super.initView();
+	}
+
+	@Override
+	public void requestData() {
+		super.requestData();
+		Log.i(TAG, "requestData: " + CommandTools.INSTANCE.requestSU());
 	}
 }
