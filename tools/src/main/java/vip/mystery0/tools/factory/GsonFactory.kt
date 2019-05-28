@@ -6,6 +6,14 @@ import java.io.StringReader
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
+fun Any.toJson(): String = GsonFactory.gson.toJson(this)
+
+inline fun <reified T> String.fromJson(): T = GsonFactory.gson.fromJson(this, T::class.java)
+
+inline fun <reified T> String.fromJsonArray(): List<T> = GsonFactory.fromJsonArray(this, T::class.java)
+
+inline fun <reified T> Reader.fromJsonArray(): List<T> = GsonFactory.fromJsonArray(this, T::class.java)
+
 object GsonFactory {
 	val gson by lazy { Gson() }
 

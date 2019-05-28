@@ -8,8 +8,16 @@ import org.apache.commons.compress.utils.IOUtils
 import java.io.*
 import java.util.zip.GZIPOutputStream
 
-object TarUtil {
-	private const val BUFFER_SIZE = 1024 * 100
+class TarUtil private constructor() {
+	companion object {
+		private const val BUFFER_SIZE = 1024 * 100
+		val INSTANCE by lazy { Holder.holder }
+		val instance = INSTANCE
+	}
+
+	private object Holder {
+		val holder = TarUtil()
+	}
 
 	/**
 	 * 归档并压缩指定目录
@@ -25,7 +33,7 @@ object TarUtil {
 				 suffix: String = "tar.gz",
 				 isDeleteExistFile: Boolean = true) {
 		val tarGzFile = File(savePath, "$archiveFileName.$suffix")
-		FileTools.deleteDir(tarGzFile)
+		FileTools.instance.deleteDir(tarGzFile)
 		if (tarGzFile.exists()) {
 			if (isDeleteExistFile)
 				tarGzFile.delete()
@@ -33,7 +41,7 @@ object TarUtil {
 				return
 		}
 		val tempTarFile = File(savePath, "$archiveFileName.tar")
-		FileTools.deleteDir(tempTarFile)
+		FileTools.instance.deleteDir(tempTarFile)
 		val bufferedInputStream = BufferedInputStream(FileInputStream(pack(dir, tempTarFile)), BUFFER_SIZE)
 		val gzipOutputStream = GZIPOutputStream(FileOutputStream(tarGzFile))
 		val byteArray = ByteArray(BUFFER_SIZE)

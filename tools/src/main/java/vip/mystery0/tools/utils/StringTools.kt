@@ -2,7 +2,16 @@ package vip.mystery0.tools.utils
 
 import java.security.MessageDigest
 
-object StringTools {
+class StringTools private constructor() {
+	companion object {
+		val INSTANCE by lazy { Holder.holder }
+		val instance = INSTANCE
+	}
+
+	private object Holder {
+		val holder = StringTools()
+	}
+
 	/**
 	 * MD5 加密
 	 * @param message 原始数据

@@ -4,7 +4,16 @@ import android.content.Context
 import android.content.SharedPreferences
 import vip.mystery0.tools.ToolsClient
 
-object CookieManager {
+class CookieManager private constructor() {
+	companion object {
+		val INSTANCE by lazy { Holder.holder }
+		val instance = INSTANCE
+	}
+
+	private object Holder {
+		val holder = CookieManager()
+	}
+
 	private val cookiePreferences: SharedPreferences by lazy {
 		ToolsClient.getContext().getSharedPreferences("cookie", Context.MODE_PRIVATE)
 	}

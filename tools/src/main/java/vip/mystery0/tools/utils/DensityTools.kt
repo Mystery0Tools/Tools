@@ -19,7 +19,16 @@ package vip.mystery0.tools.utils
 
 import vip.mystery0.tools.ToolsClient
 
-object DensityTools {
+class DensityTools private constructor() {
+	companion object {
+		val INSTANCE by lazy { Holder.holder }
+		val instance = INSTANCE
+	}
+
+	private object Holder {
+		val holder = DensityTools()
+	}
+
 	private val context by lazy { ToolsClient.getContext() }
 	/**
 	 * dp转px

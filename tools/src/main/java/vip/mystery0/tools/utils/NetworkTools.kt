@@ -5,7 +5,16 @@ import android.net.ConnectivityManager
 import androidx.annotation.RequiresPermission
 import vip.mystery0.tools.ToolsClient
 
-object NetworkTools {
+class NetworkTools private constructor() {
+	companion object {
+		val INSTANCE by lazy { Holder.holder }
+		val instance = INSTANCE
+	}
+
+	private object Holder {
+		val holder = NetworkTools()
+	}
+
 	private val connectivityManager by lazy { ToolsClient.getContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager }
 
 	@RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)

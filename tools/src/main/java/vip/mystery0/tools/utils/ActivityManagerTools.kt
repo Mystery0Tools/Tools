@@ -9,7 +9,16 @@ import java.util.*
  * Created by kun on 2016/7/12.
  * Activity管理类
  */
-object ActivityManagerTools {
+class ActivityManagerTools private constructor() {
+	companion object {
+		val INSTANCE by lazy { Holder.holder }
+		val instance = INSTANCE
+	}
+
+	private object Holder {
+		val holder = ActivityManagerTools()
+	}
+
 	private val activityStack by lazy { Stack<Activity>() }
 
 	/**

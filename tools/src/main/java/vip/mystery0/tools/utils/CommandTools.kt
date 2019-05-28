@@ -5,13 +5,22 @@ import java.io.BufferedReader
 import java.io.DataOutputStream
 import java.io.InputStreamReader
 
-object CommandTools {
+class CommandTools private constructor() {
+	companion object {
+		val INSTANCE by lazy { Holder.holder }
+		val instance = INSTANCE
+		private const val PERMISSION_DENIED = "Permission denied"
+		private const val CMD_SU = "su"
+		private const val CMD_EXIT = "exit\n"
+		private const val CMD_LINE_END = "\n"
+		private const val CMD_START = "sh"
+	}
+
+	private object Holder {
+		val holder = CommandTools()
+	}
+
 	private val TAG = CommandTools::class.java.simpleName
-	private const val PERMISSION_DENIED = "Permission denied"
-	private const val CMD_SU = "su"
-	private const val CMD_EXIT = "exit\n"
-	private const val CMD_LINE_END = "\n"
-	private const val CMD_START = "sh"
 	var isDebug = false
 
 	/**

@@ -1,6 +1,15 @@
 package vip.mystery0.tools.utils
 
-object TimeTools {
+class TimeTools private constructor() {
+	companion object {
+		val INSTANCE by lazy { Holder.holder }
+		val instance = INSTANCE
+	}
+
+	private object Holder {
+		val holder = TimeTools()
+	}
+
 	/**
 	 * 毫秒转化时分秒毫秒
 	 * @param ms
