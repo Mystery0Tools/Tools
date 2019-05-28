@@ -8,7 +8,7 @@ import org.apache.commons.compress.utils.IOUtils
 import java.io.*
 import java.util.zip.GZIPOutputStream
 
-class TarUtil private constructor() {
+class TarTools private constructor() {
 	companion object {
 		private const val BUFFER_SIZE = 1024 * 100
 		val INSTANCE by lazy { Holder.holder }
@@ -16,7 +16,7 @@ class TarUtil private constructor() {
 	}
 
 	private object Holder {
-		val holder = TarUtil()
+		val holder = TarTools()
 	}
 
 	/**
