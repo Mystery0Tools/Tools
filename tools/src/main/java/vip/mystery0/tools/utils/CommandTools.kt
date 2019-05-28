@@ -20,7 +20,9 @@ object CommandTools {
 	 */
 	fun requestSU(): Boolean {
 		val commandResult = execCommand(emptyArray(), true)
-		Log.i(TAG, commandResult.toString())
+		if (isDebug) {
+			Log.i(TAG, commandResult.toString())
+		}
 		if (commandResult.errorMessage != null && (commandResult.errorMessage == PERMISSION_DENIED))
 			return false
 		return true
@@ -76,7 +78,9 @@ object CommandTools {
 				outputStream.writeBytes(CMD_LINE_END)
 				outputStream.flush()
 			}
-			Log.i(TAG, "exec: $CMD_EXIT")
+			if (isDebug) {
+				Log.i(TAG, "exec: $CMD_EXIT")
+			}
 			outputStream.writeBytes(CMD_EXIT)
 			outputStream.flush()
 
