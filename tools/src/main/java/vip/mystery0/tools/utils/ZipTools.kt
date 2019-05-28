@@ -10,14 +10,14 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-class ZipUtil private constructor() {
+class ZipTools private constructor() {
 	companion object {
 		val INSTANCE by lazy { Holder.holder }
 		val instance = INSTANCE
 	}
 
 	private object Holder {
-		val holder = ZipUtil()
+		val holder = ZipTools()
 	}
 
 	/**
