@@ -24,11 +24,25 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Base64
 import java.io.*
-import java.text.DecimalFormat
 import java.nio.channels.FileChannel
 import java.security.MessageDigest
+import java.text.DecimalFormat
 
-object FileTools {
+class FileTools private constructor() {
+	companion object {
+		val INSTANCE by lazy { Holder.holder }
+		val instance = INSTANCE
+
+		const val DONE = 100
+		const val ERROR = 101
+		const val FILE_NOT_EXIST = 102
+		const val MAKE_DIR_ERROR = 103
+	}
+
+	private object Holder {
+		val holder = FileTools()
+	}
+
 	/**
 	 * 从uri中获取路径
 	 * @param context 上下文
@@ -131,11 +145,6 @@ object FileTools {
 		}
 		return fileSizeString
 	}
-
-	const val DONE = 100
-	const val ERROR = 101
-	const val FILE_NOT_EXIST = 102
-	const val MAKE_DIR_ERROR = 103
 
 	/**
 	 * 拷贝目录的所有内容

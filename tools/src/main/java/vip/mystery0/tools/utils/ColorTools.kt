@@ -20,7 +20,16 @@ package vip.mystery0.tools.utils
 import android.graphics.Color
 import androidx.annotation.ColorInt
 
-object ColorTools {
+class ColorTools private constructor() {
+	companion object {
+		val INSTANCE by lazy { Holder.holder }
+		val instance = INSTANCE
+	}
+
+	private object Holder {
+		val holder = ColorTools()
+	}
+
 	fun parseColor(@ColorInt color: Int, alpha: Int = 255): Int = Color.parseColor(parseColorToString(color, alpha))
 
 	fun parseColorToString(@ColorInt color: Int, alpha: Int = 255): String {

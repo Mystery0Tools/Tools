@@ -8,7 +8,16 @@ import android.os.Build
 import androidx.core.content.FileProvider
 import java.io.File
 
-object IntentTools {
+class IntentTools private constructor() {
+	companion object {
+		val INSTANCE by lazy { Holder.holder }
+		val instance = INSTANCE
+	}
+
+	private object Holder {
+		val holder = IntentTools()
+	}
+
 	/**
 	 * 分享单个文件
 	 * @param context       上下文

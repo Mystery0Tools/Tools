@@ -10,7 +10,15 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
-object ZipUtil {
+class ZipUtil private constructor() {
+	companion object {
+		val INSTANCE by lazy { Holder.holder }
+		val instance = INSTANCE
+	}
+
+	private object Holder {
+		val holder = ZipUtil()
+	}
 
 	/**
 	 * 归档并压缩指定目录
@@ -26,7 +34,7 @@ object ZipUtil {
 				 suffix: String = "zip",
 				 isDeleteExistFile: Boolean = true) {
 		val zipFile = File(savePath, "$archiveFileName.$suffix")
-		FileTools.deleteDir(zipFile)
+		FileTools.instance.deleteDir(zipFile)
 		if (zipFile.exists()) {
 			if (isDeleteExistFile)
 				zipFile.delete()

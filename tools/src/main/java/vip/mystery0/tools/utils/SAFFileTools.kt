@@ -7,7 +7,16 @@ import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import vip.mystery0.tools.factory.MimeTypeFactory
 
-object SAFFileTools {
+class SAFFileTools private constructor() {
+	companion object {
+		val INSTANCE by lazy { Holder.holder }
+		val instance = INSTANCE
+	}
+
+	private object Holder {
+		val holder = SAFFileTools()
+	}
+
 	/**
 	 * 从当前路径获取子文件，如果不存在就创建
 	 * @param fileName 子文件名称
@@ -54,7 +63,7 @@ object SAFFileTools {
 	 */
 	@SuppressLint("NewApi")
 	fun DocumentFile?.mkdirs(context: Context, rootTreeUri: Uri): Boolean {
-		if (PackageTools.isAfter(PackageTools.VERSION_N) && !DocumentsContract.isTreeUri(rootTreeUri))
+		if (PackageTools.instance.isAfter(PackageTools.VERSION_N) && !DocumentsContract.isTreeUri(rootTreeUri))
 			return false
 		fun DocumentFile?.checkParentUri(rootTreeUri: Uri, list: ArrayList<String>) {
 			if (this == null)
@@ -78,7 +87,7 @@ object SAFFileTools {
 	 */
 	@SuppressLint("NewApi")
 	fun mkdirs(context: Context, rootTreeUri: Uri, levelList: List<String>): Boolean {
-		if (PackageTools.isAfter(PackageTools.VERSION_N) && !DocumentsContract.isTreeUri(rootTreeUri))
+		if (PackageTools.instance.isAfter(PackageTools.VERSION_N) && !DocumentsContract.isTreeUri(rootTreeUri))
 			return false
 		var parent = DocumentFile.fromTreeUri(context, rootTreeUri)
 		levelList.forEach {
