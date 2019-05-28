@@ -7,9 +7,9 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 
-fun Context.getColor(@ColorRes resId: Int): Int = ContextCompat.getColor(this, resId)
+fun Context.getTColor(@ColorRes resId: Int): Int = ContextCompat.getColor(this, resId)
 
-fun Context.getDrawable(@DrawableRes resId: Int): Drawable? = ContextCompat.getDrawable(this, resId)
+fun Context.getTDrawable(@DrawableRes resId: Int): Drawable? = ContextCompat.getDrawable(this, resId)
 
 @SuppressLint("StaticFieldLeak")
 object ToolsClient {
