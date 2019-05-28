@@ -9,7 +9,7 @@ class SaveCookiesInterceptor : Interceptor {
 		val response = chain.proceed(request)
 		if (response.headers("set-cookie").isNotEmpty()) {
 			val cookies = encodeCookie(response.headers("set-cookie"))
-			CookieManager.putCookie(request.url().host(), cookies)
+			CookieManager.instance.putCookie(request.url().host(), cookies)
 		}
 		return response
 	}

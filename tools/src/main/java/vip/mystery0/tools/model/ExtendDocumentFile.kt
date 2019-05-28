@@ -1,15 +1,14 @@
 package vip.mystery0.tools.model
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import vip.mystery0.tools.ToolsClient
 import vip.mystery0.tools.utils.PackageTools
-import vip.mystery0.tools.utils.SAFFileTools.getChildFile
-import vip.mystery0.tools.utils.SAFFileTools.getChildDirectory
-import vip.mystery0.tools.utils.SAFFileTools.mkdirs
+import vip.mystery0.tools.utils.getChildDirectory
+import vip.mystery0.tools.utils.getChildFile
+import vip.mystery0.tools.utils.mkdirs
 import java.io.*
 import java.net.URI
 import java.net.URL
@@ -253,7 +252,7 @@ class ExtendDocumentFile : File {
 	object Factory {
 		@SuppressLint("NewApi")
 		fun createByTreeUri(uri: Uri): ExtendDocumentFile? {
-			if (PackageTools.isAfter(PackageTools.VERSION_N) && !DocumentsContract.isTreeUri(uri))
+			if (PackageTools.instance.isAfter(PackageTools.VERSION_N) && !DocumentsContract.isTreeUri(uri))
 				return null
 			return createByDocumentFile(DocumentFile.fromTreeUri(ToolsClient.getContext(), uri))
 		}
