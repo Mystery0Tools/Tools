@@ -6,13 +6,21 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ObservableArrayList
+import androidx.databinding.ObservableList
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import androidx.databinding.ObservableList
 
-abstract class BaseBindingRecyclerViewAdapter<M : Any, B : ViewDataBinding>(@LayoutRes private val itemLayoutId: Int) : RecyclerView.Adapter<BaseBindingRecyclerViewAdapter.BaseBindingViewHolder>() {
+abstract class BaseBindingRecyclerViewAdapter<M : Any, B : ViewDataBinding>(@LayoutRes private val itemLayoutId: Int,
+																			autoObserve: Boolean = true) : RecyclerView.Adapter<BaseBindingRecyclerViewAdapter.BaseBindingViewHolder>() {
+	constructor(@LayoutRes itemLayoutId: Int) : this(itemLayoutId, true)
+
 	var items = ObservableArrayList<M>()
 	lateinit var itemsChangeCallback: ListChangedCallback
+
+	init {
+		if (autoObserve)
+			itemsChangeCallback = ListChangedCallback()
+	}
 
 	override fun getItemCount(): Int = items.size
 
