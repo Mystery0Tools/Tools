@@ -22,6 +22,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
+import org.apache.commons.compress.utils.IOUtils
 import java.io.*
 import java.nio.channels.FileChannel
 import java.security.MessageDigest
@@ -40,6 +41,8 @@ class FileTools private constructor() {
 			const val ERROR = 101
 			const val FILE_NOT_EXIST = 102
 			const val MAKE_DIR_ERROR = 103
+			const val NOT_FILE = 104
+			const val NOT_DIRECTORY = 105
 		}
 
 		constructor(e: Exception) : this(ERROR, e.message)
@@ -72,7 +75,7 @@ class FileTools private constructor() {
 	 * @param file 临时文件
 	 */
 	fun cloneUriToFile(context: Context, uri: Uri, file: File) {
-		saveFile(context.contentResolver.openInputStream(uri), file)
+		copyInputStreamToFile(context.contentResolver.openInputStream(uri), file)
 	}
 
 	/**
@@ -150,29 +153,61 @@ class FileTools private constructor() {
 
 	/**
 	 * 拷贝目录的所有内容
+	 * @param inputDir 输入路径
+	 * @param outputDir 输出路径
+	 */
+	fun copyDir(inputDir: File, outputDir: File) {
+		if (!inputDir.exists())
+			throw FileToolsException(FileToolsException.FILE_NOT_EXIST, "源目录不存在！")
+		if (!inputDir.isDirectory)
+			throw FileToolsException(FileToolsException.NOT_DIRECTORY, "该项不是目录：${inputDir.name}(${inputDir.absolutePath})")
+		if (!outputDir.exists() && !outputDir.mkdirs())
+			throw FileToolsException(FileToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
+		inputDir.listFiles()
+				.forEach {
+					val outputFile = File(outputDir, it.name)
+					when {
+						it.isFile -> copyFile(it, outputFile)
+						it.isDirectory -> copyDir(it, outputFile)
+					}
+				}
+	}
+
+	/**
+	 * 拷贝目录的所有内容
 	 * @param inputPath 输入路径
 	 * @param outputPath 输出路径
-	 * @return 返回码
 	 */
 	fun copyDir(inputPath: String, outputPath: String) {
-		val inputFile = File(inputPath)
-		val outputFile = File(outputPath)
+		val inputDir = File(inputPath)
+		val outputDir = File(outputPath)
+		copyDir(inputDir, outputDir)
+	}
+
+	/**
+	 * 拷贝文件
+	 * @param inputFile  输入路径
+	 * @param outputFile 输出路径
+	 */
+	fun copyFile(inputFile: File, outputFile: File) {
 		if (!inputFile.exists())
 			throw FileToolsException(FileToolsException.FILE_NOT_EXIST, "源文件不存在！")
+		if (!inputFile.isFile)
+			throw FileToolsException(FileToolsException.NOT_FILE, "该项不是文件：${inputFile.name}(${inputFile.absolutePath})")
 		if (!outputFile.exists() && !outputFile.mkdirs())
 			throw FileToolsException(FileToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
+		var fileInputStream: FileInputStream? = null
+		var fileOutputStream: FileOutputStream? = null
 		try {
-			inputFile.listFiles()
-					.forEach {
-						val pathInDir = it.absolutePath.substring(inputPath.length)
-						when {
-							it.isFile -> copyFile(it.absolutePath, "$outputPath$pathInDir")
-							it.isDirectory -> copyDir(it.absolutePath, "$outputPath$pathInDir")
-						}
-					}
-		} catch (e: Exception) {
+			fileInputStream = FileInputStream(inputFile)
+			fileOutputStream = FileOutputStream(outputFile)
+			IOUtils.copy(fileInputStream, fileOutputStream)
+		} catch (e: IOException) {
 			e.printStackTrace()
 			throw FileToolsException(e)
+		} finally {
+			IOUtils.closeQuietly(fileInputStream)
+			IOUtils.closeQuietly(fileOutputStream)
 		}
 	}
 
@@ -180,94 +215,60 @@ class FileTools private constructor() {
 	 * 拷贝文件
 	 * @param inputPath  输入路径
 	 * @param outputPath 输出路径
-	 * @return 返回码
 	 */
 	fun copyFile(inputPath: String, outputPath: String) {
-		if (!File(inputPath).exists()) {
-			throw FileToolsException(FileToolsException.FILE_NOT_EXIST, "源文件不存在！")
-		}
-		val outputParentFile = File(outputPath).parentFile
-		if (!outputParentFile.exists() && !outputParentFile.mkdirs())
-			throw FileToolsException(FileToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
-		var fileInputStream: FileInputStream? = null
-		var fileOutputStream: FileOutputStream? = null
-		try {
-			fileInputStream = FileInputStream(inputPath)
-			fileOutputStream = FileOutputStream(outputPath)
-			val bytes = ByteArray(1024 * 1024)
-			var readCount = fileInputStream.read(bytes)
-			while (readCount != -1) {
-				fileOutputStream.write(bytes, 0, readCount)
-				readCount = fileInputStream.read(bytes)
-			}
-		} catch (e: Exception) {
-			e.printStackTrace()
-			throw FileToolsException(e)
-		} finally {
-			fileInputStream?.close()
-			fileOutputStream?.close()
-		}
+		val inputFile = File(inputPath)
+		val outputFile = File(outputPath)
+		copyFile(inputFile, outputFile)
 	}
 
 	/**
 	 * 将文件的内容写入到输出流中
 	 * @param inputFile
-	 * @param fileOutputStream
+	 * @param outputStream
 	 * @param closeStreamFinally 是否自动关闭流
 	 * @return 拷贝结果
 	 */
-	fun copyFileToOutputStream(inputFile: File, fileOutputStream: OutputStream?, closeStreamFinally: Boolean = true): Boolean {
+	fun copyFileToOutputStream(inputFile: File, outputStream: OutputStream?, closeStreamFinally: Boolean = true): Boolean {
 		var fileInputStream: FileInputStream? = null
-		try {
+		return try {
 			fileInputStream = FileInputStream(inputFile)
-			val bytes = ByteArray(1024 * 1024)
-			var readCount = fileInputStream.read(bytes)
-			while (readCount != -1) {
-				fileOutputStream?.write(bytes, 0, readCount)
-				readCount = fileInputStream.read(bytes)
-			}
-			return true
-		} catch (e: Exception) {
+			IOUtils.copy(fileInputStream, outputStream)
+			true
+		} catch (e: IOException) {
 			e.printStackTrace()
-			return false
+			false
 		} finally {
-			fileInputStream?.close()
+			IOUtils.closeQuietly(fileInputStream)
 			if (closeStreamFinally)
-				fileOutputStream?.close()
+				IOUtils.closeQuietly(outputStream)
 		}
 	}
 
 	/**
 	 * 将输入流的数据存储到文件中
 	 * @param inputStream 输入流
-	 * @param file 要存储到的文件
+	 * @param outputFile 要存储到的文件
 	 * @param closeStreamFinally 是否自动关闭流
 	 * @return 存储结果
 	 */
-	fun saveFile(inputStream: InputStream?, file: File, closeStreamFinally: Boolean = true): Boolean {
-		var outputStream: OutputStream? = null
-		try {
-			if (!file.parentFile.exists())
-				file.parentFile.mkdirs()
-			if (file.exists())
-				file.delete()
-			val dataInputStream = DataInputStream(BufferedInputStream(inputStream))
-			outputStream = DataOutputStream(BufferedOutputStream(FileOutputStream(file)))
-			val bytes = ByteArray(1024 * 1024)
-			while (true) {
-				val read = dataInputStream.read(bytes)
-				if (read <= 0)
-					break
-				outputStream.write(bytes, 0, read)
-			}
-			return true
-		} catch (e: Exception) {
+	fun copyInputStreamToFile(inputStream: InputStream?, outputFile: File, closeStreamFinally: Boolean = true): Boolean {
+		if (!outputFile.parentFile.exists())
+			outputFile.parentFile.mkdirs()
+		if (outputFile.exists())
+			outputFile.delete()
+		var fileOutputStream: FileOutputStream? = null
+		return try {
+			fileOutputStream = FileOutputStream(outputFile)
+			IOUtils.copy(inputStream, fileOutputStream)
+			true
+		} catch (e: IOException) {
 			e.printStackTrace()
-			return false
+			false
 		} finally {
 			if (closeStreamFinally)
-				inputStream?.close()
-			outputStream?.close()
+				IOUtils.closeQuietly(inputStream)
+			IOUtils.closeQuietly(fileOutputStream)
 		}
 	}
 

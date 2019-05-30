@@ -58,6 +58,12 @@ class ZipTools private constructor() {
 	fun decompress(dir: File,
 				   zipFile: File,
 				   isDelete: Boolean = false) {
+		if (!zipFile.exists())
+			throw RuntimeException("文件不存在！")
+		if (!dir.isDirectory)
+			dir.delete()
+		if (!dir.exists() && !dir.mkdirs())
+			throw RuntimeException("目录创建失败！")
 		unzipFolder(zipFile, dir)
 		if (isDelete)
 			zipFile.delete()
