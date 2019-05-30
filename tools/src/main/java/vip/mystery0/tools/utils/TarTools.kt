@@ -5,12 +5,14 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.compress.utils.IOUtils
-import java.io.*
+import java.io.BufferedInputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.util.zip.GZIPOutputStream
 
 class TarTools private constructor() {
 	companion object {
-		private const val BUFFER_SIZE = 1024 * 100
 		@JvmField
 		val INSTANCE = Holder.holder
 		@JvmField
@@ -44,16 +46,12 @@ class TarTools private constructor() {
 		}
 		val tempTarFile = File(savePath, "$archiveFileName.tar")
 		FileTools.instance.deleteDir(tempTarFile)
-		val bufferedInputStream = BufferedInputStream(FileInputStream(pack(dir, tempTarFile)), BUFFER_SIZE)
+		pack(dir, tempTarFile)
+		val fileInputStream = FileInputStream(tempTarFile)
 		val gzipOutputStream = GZIPOutputStream(FileOutputStream(tarGzFile))
-		val byteArray = ByteArray(BUFFER_SIZE)
-		var read = bufferedInputStream.read(byteArray)
-		while (read != -1) {
-			gzipOutputStream.write(byteArray, 0, read)
-			read = bufferedInputStream.read(byteArray)
-		}
-		bufferedInputStream.close()
-		gzipOutputStream.close()
+		IOUtils.copy(fileInputStream, gzipOutputStream)
+		IOUtils.closeQuietly(fileInputStream)
+		IOUtils.closeQuietly(gzipOutputStream)
 		tempTarFile.delete()
 	}
 
@@ -73,7 +71,6 @@ class TarTools private constructor() {
 			return
 		val tarArchiveInputStream = TarArchiveInputStream(GzipCompressorInputStream(BufferedInputStream(FileInputStream(tarGzFile))))
 		var tarArchiveEntry: TarArchiveEntry? = tarArchiveInputStream.nextTarEntry
-		val byteArray = ByteArray(BUFFER_SIZE)
 		while (tarArchiveEntry != null) {
 			val tempFile = File(dir, tarArchiveEntry.name)
 			if (tarArchiveEntry.isDirectory)
@@ -82,16 +79,12 @@ class TarTools private constructor() {
 				val parent = tempFile.parentFile
 				if (!parent.exists()) parent.mkdirs()
 				val fileOutputStream = FileOutputStream(tempFile)
-				var read = tarArchiveInputStream.read(byteArray)
-				while (read != -1) {
-					fileOutputStream.write(byteArray, 0, read)
-					read = tarArchiveInputStream.read(byteArray)
-				}
-				fileOutputStream.close()
+				IOUtils.copy(tarArchiveInputStream, fileOutputStream)
+				IOUtils.closeQuietly(fileOutputStream)
 			}
 			tarArchiveEntry = tarArchiveInputStream.nextTarEntry
 		}
-		tarArchiveInputStream.close()
+		IOUtils.closeQuietly(tarArchiveInputStream)
 		if (isDelete)
 			tarGzFile.delete()
 	}
@@ -124,7 +117,7 @@ class TarTools private constructor() {
 	 * @return File  指定返回的目标文件
 	 */
 	private fun pack(baseDir: File, target: File): File {
-		val tarArchiveOutputStream = TarArchiveOutputStream(BufferedOutputStream(FileOutputStream(target), BUFFER_SIZE))
+		val tarArchiveOutputStream = TarArchiveOutputStream(FileOutputStream(target))
 		tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
 		addFilesToCompression(tarArchiveOutputStream, baseDir, "")
 		IOUtils.closeQuietly(tarArchiveOutputStream)
