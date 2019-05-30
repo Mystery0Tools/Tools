@@ -94,6 +94,26 @@ class TarTools private constructor() {
 			tarGzFile.delete()
 	}
 
+	private fun addFilesToCompression(tarArchiveOutputStream: TarArchiveOutputStream, file: File, dir: String) {
+		val tarArchiveEntry = TarArchiveEntry(file, "$dir${File.separator}${file.name}")
+		tarArchiveOutputStream.putArchiveEntry(tarArchiveEntry)
+		when {
+			file.isFile -> {
+				tarArchiveEntry.size = file.length()
+				val bufferedInputStream = BufferedInputStream(FileInputStream(file))
+				IOUtils.copy(bufferedInputStream, tarArchiveOutputStream)
+				tarArchiveOutputStream.closeArchiveEntry()
+				IOUtils.closeQuietly(bufferedInputStream)
+			}
+			file.isDirectory -> {
+				tarArchiveOutputStream.closeArchiveEntry()
+				file.listFiles().forEach {
+					addFilesToCompression(tarArchiveOutputStream, it, "$dir${file.name}${File.separator}")
+				}
+			}
+		}
+	}
+
 	/**
 	 * 将文件集合压缩成tar包后返回
 	 *
@@ -104,17 +124,8 @@ class TarTools private constructor() {
 	private fun pack(baseDir: File, target: File): File {
 		val tarArchiveOutputStream = TarArchiveOutputStream(BufferedOutputStream(FileOutputStream(target), BUFFER_SIZE))
 		tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
-		baseDir.listFiles().forEach {
-			val fileName = it.absolutePath.substringAfterLast(baseDir.absolutePath)
-			val tarArchiveEntry = TarArchiveEntry("${baseDir.name}$fileName")
-			tarArchiveEntry.size = it.length()
-			tarArchiveOutputStream.putArchiveEntry(tarArchiveEntry)
-			val fileInputStream = FileInputStream(it)
-			IOUtils.copy(fileInputStream, tarArchiveOutputStream)
-			fileInputStream.close()
-			tarArchiveOutputStream.closeArchiveEntry()
-		}
-		tarArchiveOutputStream.close()
+		baseDir.listFiles().forEach { addFilesToCompression(tarArchiveOutputStream, it, baseDir.name) }
+		IOUtils.closeQuietly(tarArchiveOutputStream)
 		return target
 	}
 }
