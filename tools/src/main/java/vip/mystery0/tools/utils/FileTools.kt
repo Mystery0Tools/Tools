@@ -21,7 +21,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Environment
 import android.util.Base64
 import java.io.*
 import java.nio.channels.FileChannel
@@ -67,12 +66,7 @@ class FileTools private constructor() {
 	 * @param file 临时文件
 	 */
 	fun cloneUriToFile(context: Context, uri: Uri, file: File) {
-		val parent = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) ?: return
-		if (!parent.exists())
-			parent.mkdirs()
-		if (parent.isDirectory || parent.delete() && parent.mkdirs()) {
-			saveFile(context.contentResolver.openInputStream(uri), file)
-		}
+		saveFile(context.contentResolver.openInputStream(uri), file)
 	}
 
 	/**
