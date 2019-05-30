@@ -16,11 +16,22 @@ class ArchiveTools private constructor(private val type: Int) {
 		const val TYPE_TAR_GZ = 1
 		const val TYPE_ZIP = 2
 
+		@JvmStatic
 		fun create(type: Int): ArchiveTools = ArchiveTools(type)
 
-		fun tarGz(): ArchiveTools = ArchiveTools(TYPE_TAR_GZ)
+		@JvmStatic
+		fun tarGz(): ArchiveTools {
+			val instance = ArchiveTools(TYPE_TAR_GZ)
+			instance.suffix = "tar.gz"
+			return instance
+		}
 
-		fun zip(): ArchiveTools = ArchiveTools(TYPE_ZIP)
+		@JvmStatic
+		fun zip(): ArchiveTools {
+			val instance = ArchiveTools(TYPE_ZIP)
+			instance.suffix = "zip"
+			return instance
+		}
 	}
 
 	fun compress() {
@@ -87,14 +98,24 @@ class ArchiveTools private constructor(private val type: Int) {
 		return this
 	}
 
+	fun compressTo(saveFile: File): ArchiveTools {
+		this.archiveFileName = saveFile.nameWithoutExtension
+		this.savePath = saveFile.parentFile
+		this.suffix = saveFile.extension
+		return this
+	}
+
+	fun decompressTo(saveFile: File): ArchiveTools {
+		this.decompressDir = saveFile
+		return this
+	}
+
 	/**
 	 * 设置压缩文件的存储路径，压缩文件本身
 	 */
 	fun saveTo(saveFile: File): ArchiveTools {
-		this.decompressDir = saveFile
-		this.archiveFileName = saveFile.nameWithoutExtension
-		this.savePath = saveFile.parentFile
-		this.suffix = saveFile.extension
+		compressTo(saveFile)
+		decompressTo(saveFile)
 		return this
 	}
 
