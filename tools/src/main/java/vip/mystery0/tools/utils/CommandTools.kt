@@ -7,7 +7,9 @@ import java.io.InputStreamReader
 
 class CommandTools private constructor() {
 	companion object {
-		val INSTANCE by lazy { Holder.holder }
+		@JvmField
+		val INSTANCE = Holder.holder
+		@JvmField
 		val instance = INSTANCE
 		private const val PERMISSION_DENIED = "Permission denied"
 		private const val CMD_SU = "su"

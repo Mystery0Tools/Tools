@@ -2,7 +2,9 @@ package vip.mystery0.tools.utils
 
 class TimeTools private constructor() {
 	companion object {
-		val INSTANCE by lazy { Holder.holder }
+		@JvmField
+		val INSTANCE = Holder.holder
+		@JvmField
 		val instance = INSTANCE
 	}
 

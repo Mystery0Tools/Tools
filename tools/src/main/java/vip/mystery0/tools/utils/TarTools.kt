@@ -11,7 +11,9 @@ import java.util.zip.GZIPOutputStream
 class TarTools private constructor() {
 	companion object {
 		private const val BUFFER_SIZE = 1024 * 100
-		val INSTANCE by lazy { Holder.holder }
+		@JvmField
+		val INSTANCE = Holder.holder
+		@JvmField
 		val instance = INSTANCE
 	}
 

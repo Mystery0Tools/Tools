@@ -22,7 +22,9 @@ import androidx.annotation.ColorInt
 
 class ColorTools private constructor() {
 	companion object {
-		val INSTANCE by lazy { Holder.holder }
+		@JvmField
+		val INSTANCE = Holder.holder
+		@JvmField
 		val instance = INSTANCE
 	}
 

@@ -10,7 +10,9 @@ import java.io.File
 
 class IntentTools private constructor() {
 	companion object {
-		val INSTANCE by lazy { Holder.holder }
+		@JvmField
+		val INSTANCE = Holder.holder
+		@JvmField
 		val instance = INSTANCE
 	}
 

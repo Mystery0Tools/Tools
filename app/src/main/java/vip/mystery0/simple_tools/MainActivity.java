@@ -5,6 +5,7 @@ import android.util.Log;
 import java.io.File;
 
 import vip.mystery0.tools.base.BaseActivity;
+import vip.mystery0.tools.utils.ActivityManagerTools;
 import vip.mystery0.tools.utils.ArchiveTools;
 import vip.mystery0.tools.utils.CommandTools;
 import vip.mystery0.view.ProgressDialog;
