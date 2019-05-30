@@ -33,11 +33,17 @@ class FileTools private constructor() {
 		val INSTANCE = Holder.holder
 		@JvmField
 		val instance = INSTANCE
+	}
 
-		const val DONE = 100
-		const val ERROR = 101
-		const val FILE_NOT_EXIST = 102
-		const val MAKE_DIR_ERROR = 103
+	class FileToolsException(val code: Int, val msg: String?) : RuntimeException() {
+		companion object {
+			const val ERROR = 101
+			const val FILE_NOT_EXIST = 102
+			const val MAKE_DIR_ERROR = 103
+		}
+
+		constructor(e: Exception) : this(ERROR, e.message)
+		constructor() : this(ERROR, null)
 	}
 
 	private object Holder {
@@ -147,19 +153,15 @@ class FileTools private constructor() {
 	 * @param inputPath 输入路径
 	 * @param outputPath 输出路径
 	 * @return 返回码
-	 * @see FILE_NOT_EXIST 输入的文件不存在
-	 * @see MAKE_DIR_ERROR 输出文件父级目录创建失败
-	 * @see DONE 完成
-	 * @see ERROR 出错
 	 */
-	fun copyDir(inputPath: String, outputPath: String): Int {
+	fun copyDir(inputPath: String, outputPath: String) {
 		val inputFile = File(inputPath)
 		val outputFile = File(outputPath)
 		if (!inputFile.exists())
-			return FILE_NOT_EXIST
+			throw FileToolsException(FileToolsException.FILE_NOT_EXIST, "源文件不存在！")
 		if (!outputFile.exists() && !outputFile.mkdirs())
-			return MAKE_DIR_ERROR
-		return try {
+			throw FileToolsException(FileToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
+		try {
 			inputFile.listFiles()
 					.forEach {
 						val pathInDir = it.absolutePath.substring(inputPath.length)
@@ -168,10 +170,9 @@ class FileTools private constructor() {
 							it.isDirectory -> copyDir(it.absolutePath, "$outputPath$pathInDir")
 						}
 					}
-			DONE
 		} catch (e: Exception) {
 			e.printStackTrace()
-			ERROR
+			throw FileToolsException(e)
 		}
 	}
 
@@ -180,18 +181,14 @@ class FileTools private constructor() {
 	 * @param inputPath  输入路径
 	 * @param outputPath 输出路径
 	 * @return 返回码
-	 * @see DONE 成功
-	 * @see ERROR 失败
-	 * @see FILE_NOT_EXIST 文件不存在
-	 * @see MAKE_DIR_ERROR 创建文件夹失败
 	 */
-	fun copyFile(inputPath: String, outputPath: String): Int {
+	fun copyFile(inputPath: String, outputPath: String) {
 		if (!File(inputPath).exists()) {
-			return FILE_NOT_EXIST
+			throw FileToolsException(FileToolsException.FILE_NOT_EXIST, "源文件不存在！")
 		}
 		val outputParentFile = File(outputPath).parentFile
 		if (!outputParentFile.exists() && !outputParentFile.mkdirs())
-			return MAKE_DIR_ERROR
+			throw FileToolsException(FileToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
 		var fileInputStream: FileInputStream? = null
 		var fileOutputStream: FileOutputStream? = null
 		try {
@@ -203,9 +200,9 @@ class FileTools private constructor() {
 				fileOutputStream.write(bytes, 0, readCount)
 				readCount = fileInputStream.read(bytes)
 			}
-			return DONE
 		} catch (e: Exception) {
-			return ERROR
+			e.printStackTrace()
+			throw FileToolsException(e)
 		} finally {
 			fileInputStream?.close()
 			fileOutputStream?.close()
@@ -279,7 +276,7 @@ class FileTools private constructor() {
 	 * @param path 要删除的文件夹路径
 	 * @return 返回码
 	 */
-	fun deleteDir(path: String, isDeleteDir: Boolean = true): Int = deleteDir(File(path), isDeleteDir)
+	fun deleteDir(path: String, isDeleteDir: Boolean = true) = deleteDir(File(path), isDeleteDir)
 
 	/**
 	 * 删除文件夹
@@ -288,7 +285,7 @@ class FileTools private constructor() {
 	 * @see DONE 成功
 	 * @see FILE_NOT_EXIST 文件不存在
 	 */
-	fun deleteDir(dir: File, isDeleteDir: Boolean = true): Int {
+	fun deleteDir(dir: File, isDeleteDir: Boolean = true) {
 		if (dir.exists()) {
 			if (dir.isDirectory) {
 				dir.listFiles().forEach {
@@ -298,9 +295,8 @@ class FileTools private constructor() {
 					dir.delete()
 			} else
 				dir.delete()
-			return DONE
-		}
-		return FILE_NOT_EXIST
+		} else
+			throw FileToolsException(FileToolsException.FILE_NOT_EXIST, "文件不存在：${dir.name}(${dir.absolutePath})")
 	}
 
 	fun getMD5(file: File): String {
