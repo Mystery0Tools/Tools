@@ -1,16 +1,12 @@
 package vip.mystery0.simple_tools;
 
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Environment;
-import android.provider.DocumentsContract;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
+import java.io.File;
 
 import vip.mystery0.tools.base.BaseActivity;
+import vip.mystery0.tools.utils.ArchiveTools;
 import vip.mystery0.tools.utils.CommandTools;
-import vip.mystery0.tools.utils.FileTools;
 import vip.mystery0.view.ProgressDialog;
 
 public class MainActivity extends BaseActivity {
@@ -28,43 +24,29 @@ public class MainActivity extends BaseActivity {
 	@Override
 	public void initData() {
 		super.initData();
-		final ProgressDialog progressDialog = new ProgressDialog(this);
-		progressDialog.setTitle("title");
-		progressDialog.setMessage("message");
-		progressDialog.show();
+//		final ProgressDialog progressDialog = new ProgressDialog(this);
+//		progressDialog.setTitle("title");
+//		progressDialog.setMessage("message");
+//		progressDialog.show();
 
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				int i = 0;
-				while (i <= 10) {
-					final int finalI = i;
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							progressDialog.setProgress(finalI);
-						}
-					});
-					try {
-						Thread.sleep(200);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					i++;
-				}
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						progressDialog.cancel();
-					}
-				});
-			}
-		}).start();
+//		new Thread(new Runnable() {
+//			@Override
+//			public void run() {
+//				ArchiveTools.Companion.tarGz()
+//						.setCompressDir(new File("/sdcard/JanYo Share"))
+//						.setArchiveFileName("test")
+//						.setSavePath(new File("/sdcard/"))
+//						.setSuffix("tar.gz")
+//						.compress();
+
+//				runOnUiThread(new Runnable() {
+//					@Override
+//					public void run() {
+//						progressDialog.cancel();
+//					}
+//				});
+//			}
+//		}).start();
 	}
 
 	@Override
@@ -75,6 +57,5 @@ public class MainActivity extends BaseActivity {
 	@Override
 	public void requestData() {
 		super.requestData();
-		Log.i(TAG, "requestData: " + CommandTools.INSTANCE.requestSU());
 	}
 }
