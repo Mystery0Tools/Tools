@@ -44,7 +44,7 @@ class ZipTools private constructor() {
 		val zipArchiveOutputStream = ZipArchiveOutputStream(zipFile)
 		zipArchiveOutputStream.setUseZip64(Zip64Mode.AsNeeded)
 		zipArchiveOutputStream.encoding = "GBK"
-		dir.listFiles().forEach { addFilesToCompression(zipArchiveOutputStream, it, dir.name) }
+		addFilesToCompression(zipArchiveOutputStream, dir, "")
 		IOUtils.closeQuietly(zipArchiveOutputStream)
 	}
 
@@ -74,7 +74,7 @@ class ZipTools private constructor() {
 			file.isDirectory -> {
 				zipArchiveOutputStream.closeArchiveEntry()
 				file.listFiles().forEach {
-					addFilesToCompression(zipArchiveOutputStream, it, "$dir${file.name}${File.separator}")
+					addFilesToCompression(zipArchiveOutputStream, it, "$dir${File.separator}${file.name}${File.separator}")
 				}
 			}
 		}

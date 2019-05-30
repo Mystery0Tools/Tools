@@ -108,7 +108,7 @@ class TarTools private constructor() {
 			file.isDirectory -> {
 				tarArchiveOutputStream.closeArchiveEntry()
 				file.listFiles().forEach {
-					addFilesToCompression(tarArchiveOutputStream, it, "$dir${file.name}${File.separator}")
+					addFilesToCompression(tarArchiveOutputStream, it, "$dir${File.separator}${file.name}${File.separator}")
 				}
 			}
 		}
@@ -124,7 +124,7 @@ class TarTools private constructor() {
 	private fun pack(baseDir: File, target: File): File {
 		val tarArchiveOutputStream = TarArchiveOutputStream(BufferedOutputStream(FileOutputStream(target), BUFFER_SIZE))
 		tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
-		baseDir.listFiles().forEach { addFilesToCompression(tarArchiveOutputStream, it, baseDir.name) }
+		addFilesToCompression(tarArchiveOutputStream, baseDir, "")
 		IOUtils.closeQuietly(tarArchiveOutputStream)
 		return target
 	}
