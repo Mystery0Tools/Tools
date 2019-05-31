@@ -23,6 +23,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Base64
 import org.apache.commons.compress.utils.IOUtils
+import vip.mystery0.tools.ToolsException
 import java.io.*
 import java.nio.channels.FileChannel
 import java.security.MessageDigest
@@ -34,20 +35,6 @@ class FileTools private constructor() {
 		val INSTANCE = Holder.holder
 		@JvmField
 		val instance = INSTANCE
-	}
-
-	open class ToolsException(val code: Int, override val message: String?) : RuntimeException() {
-		companion object {
-			const val ERROR = 101
-			const val FILE_NOT_EXIST = 102
-			const val MAKE_DIR_ERROR = 103
-			const val NOT_FILE = 104
-			const val NOT_DIRECTORY = 105
-		}
-
-		constructor(e: Throwable) : this(ERROR, e.message)
-		constructor(message: String?) : this(ERROR, message)
-		constructor() : this(ERROR, null)
 	}
 
 	private object Holder {
