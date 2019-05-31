@@ -36,7 +36,7 @@ class FileTools private constructor() {
 		val instance = INSTANCE
 	}
 
-	class FileToolsException(val code: Int, val msg: String?) : RuntimeException() {
+	open class ToolsException(val code: Int, override val message: String?) : RuntimeException() {
 		companion object {
 			const val ERROR = 101
 			const val FILE_NOT_EXIST = 102
@@ -45,26 +45,13 @@ class FileTools private constructor() {
 			const val NOT_DIRECTORY = 105
 		}
 
-		constructor(e: Exception) : this(ERROR, e.message)
+		constructor(e: Throwable) : this(ERROR, e.message)
+		constructor(message: String?) : this(ERROR, message)
 		constructor() : this(ERROR, null)
 	}
 
 	private object Holder {
 		val holder = FileTools()
-	}
-
-	/**
-	 * 从uri中获取路径
-	 * @param context 上下文
-	 * @param uri 需要获取路径的uri对象
-	 * @return 提取到的路径
-	 *
-	 * @Deprecated 1.7.2
-	 * @see cloneUriToFile(Context,Uri,File)
-	 */
-	@Deprecated("事实上，在不同设备上，这个方法很容易出问题，比如说不适配第三方图库，所以在1.7.2中标记为过时，请使用cloneUriToFile方法将Uri中的内容存储到临时文件中")
-	fun getPath(context: Context, uri: Uri): String? {
-		throw Exception("该方法已删除，请使用 cloneUriToFile")
 	}
 
 	/**
@@ -158,11 +145,11 @@ class FileTools private constructor() {
 	 */
 	fun copyDir(inputDir: File, outputDir: File) {
 		if (!inputDir.exists())
-			throw FileToolsException(FileToolsException.FILE_NOT_EXIST, "源目录不存在！")
+			throw ToolsException(ToolsException.FILE_NOT_EXIST, "源目录不存在！")
 		if (!inputDir.isDirectory)
-			throw FileToolsException(FileToolsException.NOT_DIRECTORY, "该项不是目录：${inputDir.name}(${inputDir.absolutePath})")
+			throw ToolsException(ToolsException.NOT_DIRECTORY, "该项不是目录：${inputDir.name}(${inputDir.absolutePath})")
 		if (!outputDir.exists() && !outputDir.mkdirs())
-			throw FileToolsException(FileToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
+			throw ToolsException(ToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
 		inputDir.listFiles()
 				.forEach {
 					val outputFile = File(outputDir, it.name)
@@ -191,11 +178,11 @@ class FileTools private constructor() {
 	 */
 	fun copyFile(inputFile: File, outputFile: File) {
 		if (!inputFile.exists())
-			throw FileToolsException(FileToolsException.FILE_NOT_EXIST, "源文件不存在！")
+			throw ToolsException(ToolsException.FILE_NOT_EXIST, "源文件不存在！")
 		if (!inputFile.isFile)
-			throw FileToolsException(FileToolsException.NOT_FILE, "该项不是文件：${inputFile.name}(${inputFile.absolutePath})")
+			throw ToolsException(ToolsException.NOT_FILE, "该项不是文件：${inputFile.name}(${inputFile.absolutePath})")
 		if (!outputFile.exists() && !outputFile.mkdirs())
-			throw FileToolsException(FileToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
+			throw ToolsException(ToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
 		var fileInputStream: FileInputStream? = null
 		var fileOutputStream: FileOutputStream? = null
 		try {
@@ -204,7 +191,7 @@ class FileTools private constructor() {
 			IOUtils.copy(fileInputStream, fileOutputStream)
 		} catch (e: IOException) {
 			e.printStackTrace()
-			throw FileToolsException(e)
+			throw ToolsException(e)
 		} finally {
 			IOUtils.closeQuietly(fileInputStream)
 			IOUtils.closeQuietly(fileOutputStream)
@@ -297,7 +284,7 @@ class FileTools private constructor() {
 			} else
 				dir.delete()
 		} else
-			throw FileToolsException(FileToolsException.FILE_NOT_EXIST, "文件不存在：${dir.name}(${dir.absolutePath})")
+			throw ToolsException(ToolsException.FILE_NOT_EXIST, "文件不存在：${dir.name}(${dir.absolutePath})")
 	}
 
 	fun getMD5(file: File): String {
