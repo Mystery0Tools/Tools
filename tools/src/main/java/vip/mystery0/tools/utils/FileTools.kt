@@ -168,7 +168,7 @@ class FileTools private constructor() {
 			throw ToolsException(ToolsException.FILE_NOT_EXIST, "源文件不存在！")
 		if (!inputFile.isFile)
 			throw ToolsException(ToolsException.NOT_FILE, "该项不是文件：${inputFile.name}(${inputFile.absolutePath})")
-		if (!outputFile.exists() && !outputFile.mkdirs())
+		if (!outputFile.parentFile.exists() && !outputFile.parentFile.mkdirs())
 			throw ToolsException(ToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
 		var fileInputStream: FileInputStream? = null
 		var fileOutputStream: FileOutputStream? = null
