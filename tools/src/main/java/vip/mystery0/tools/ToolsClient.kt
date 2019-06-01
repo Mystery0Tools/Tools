@@ -14,31 +14,43 @@ fun Context.getTDrawable(@DrawableRes resId: Int): Drawable? = ContextCompat.get
 
 fun Context.getTStringArray(@ArrayRes resId: Int): Array<String> = this.resources.getStringArray(resId)
 
-fun doByTry(listener: () -> Unit): Exception? {
+fun doByTry(trys: () -> Unit): Exception? = doByTry(trys, null)
+
+fun doByTry(trys: () -> Unit, finally: (() -> Unit)?): Exception? {
 	return try {
-		listener.invoke()
+		trys.invoke()
 		null
 	} catch (e: Exception) {
 		e
+	} finally {
+		finally?.invoke()
 	}
 }
 
-fun tryOrBoolean(listener: () -> Unit): Boolean {
+fun tryOrBoolean(trys: () -> Unit): Boolean = tryOrBoolean(trys, null)
+
+fun tryOrBoolean(trys: () -> Unit, finally: (() -> Unit)?): Boolean {
 	return try {
-		listener.invoke()
+		trys.invoke()
 		true
 	} catch (e: Exception) {
 		e.printStackTrace()
 		false
+	} finally {
+		finally?.invoke()
 	}
 }
 
-fun tryBoolean(listener: () -> Boolean): Boolean {
+fun tryBoolean(trys: () -> Boolean): Boolean = tryBoolean(trys, null)
+
+fun tryBoolean(trys: () -> Boolean, finally: (() -> Unit)?): Boolean {
 	return try {
-		listener.invoke()
+		trys.invoke()
 	} catch (e: Exception) {
 		e.printStackTrace()
 		false
+	} finally {
+		finally?.invoke()
 	}
 }
 
