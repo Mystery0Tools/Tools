@@ -5,6 +5,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.compress.utils.IOUtils
+import vip.mystery0.tools.ToolsException
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
@@ -35,14 +36,15 @@ class TarTools private constructor() {
 				 archiveFileName: String,
 				 savePath: File,
 				 suffix: String = "tar.gz",
-				 isDeleteExistFile: Boolean = true) {
+				 isDeleteExistFile: Boolean = true,
+				 ignoreException: Boolean = false) {
 		val tarGzFile = File(savePath, "$archiveFileName.$suffix")
-		FileTools.instance.deleteDir(tarGzFile)
 		if (tarGzFile.exists()) {
-			if (isDeleteExistFile)
-				tarGzFile.delete()
-			else
-				return
+			when {
+				isDeleteExistFile -> FileTools.instance.deleteDir(tarGzFile)
+				ignoreException -> return
+				else -> throw ToolsException(ToolsException.FILE_EXIST, "输出目录已存在同名文件！")
+			}
 		}
 		val tempTarFile = File(savePath, "$archiveFileName.tar")
 		FileTools.instance.deleteDir(tempTarFile)
@@ -62,13 +64,16 @@ class TarTools private constructor() {
 	 */
 	fun decompress(dir: File,
 				   tarGzFile: File,
-				   isDelete: Boolean = false) {
+				   isDelete: Boolean = false,
+				   ignoreException: Boolean = false) {
 		if (!tarGzFile.exists())
-			return
+			if (ignoreException) return
+			else throw ToolsException(ToolsException.FILE_NOT_EXIST, "压缩文件（${tarGzFile.name}）不存在！")
 		if (!dir.isDirectory)
 			dir.delete()
 		if (!dir.exists() && !dir.mkdirs())
-			return
+			if (ignoreException) return
+			else throw ToolsException(ToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
 		val tarArchiveInputStream = TarArchiveInputStream(GzipCompressorInputStream(BufferedInputStream(FileInputStream(tarGzFile))))
 		var tarArchiveEntry: TarArchiveEntry? = tarArchiveInputStream.nextTarEntry
 		while (tarArchiveEntry != null) {

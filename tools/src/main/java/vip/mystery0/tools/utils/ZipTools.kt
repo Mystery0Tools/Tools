@@ -5,6 +5,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
 import org.apache.commons.compress.archivers.zip.ZipFile
 import org.apache.commons.compress.utils.IOUtils
+import vip.mystery0.tools.ToolsException
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
@@ -34,14 +35,15 @@ class ZipTools private constructor() {
 				 archiveFileName: String,
 				 savePath: File,
 				 suffix: String = "zip",
-				 isDeleteExistFile: Boolean = true) {
+				 isDeleteExistFile: Boolean = true,
+				 ignoreException: Boolean = false) {
 		val zipFile = File(savePath, "$archiveFileName.$suffix")
-		FileTools.instance.deleteDir(zipFile)
 		if (zipFile.exists()) {
-			if (isDeleteExistFile)
-				zipFile.delete()
-			else
-				return
+			when {
+				isDeleteExistFile -> FileTools.instance.deleteDir(zipFile)
+				ignoreException -> return
+				else -> throw ToolsException(ToolsException.FILE_EXIST, "输出目录已存在同名文件！")
+			}
 		}
 		val zipArchiveOutputStream = ZipArchiveOutputStream(zipFile)
 		zipArchiveOutputStream.setUseZip64(Zip64Mode.AsNeeded)
@@ -57,13 +59,16 @@ class ZipTools private constructor() {
 	 */
 	fun decompress(dir: File,
 				   zipFile: File,
-				   isDelete: Boolean = false) {
+				   isDelete: Boolean = false,
+				   ignoreException: Boolean = false) {
 		if (!zipFile.exists())
-			throw RuntimeException("文件不存在！")
+			if (ignoreException) return
+			else throw ToolsException(ToolsException.FILE_NOT_EXIST, "压缩文件（${zipFile.name}）不存在！")
 		if (!dir.isDirectory)
 			dir.delete()
 		if (!dir.exists() && !dir.mkdirs())
-			throw RuntimeException("目录创建失败！")
+			if (ignoreException) return
+			else throw ToolsException(ToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
 		unzipFolder(zipFile, dir)
 		if (isDelete)
 			zipFile.delete()
