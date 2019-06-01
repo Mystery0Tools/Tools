@@ -11,6 +11,7 @@ class ArchiveTools private constructor(private val type: Int) {
 	private lateinit var savePath: File//压缩文件存储路径
 	private var isDeleteExistFile: Boolean = true//是否替换已存在的文件，指的是压缩文件
 	private var isDelete: Boolean = false//解压后是否自动删除压缩文件
+	private var ignoreException: Boolean = false//是否忽略错误
 
 	companion object {
 		const val TYPE_TAR_GZ = 1
@@ -36,18 +37,28 @@ class ArchiveTools private constructor(private val type: Int) {
 
 	fun compress() {
 		when (type) {
-			TYPE_TAR_GZ -> TarTools.instance.compress(compressDir, archiveFileName, savePath, suffix, isDeleteExistFile)
-			TYPE_ZIP -> ZipTools.instance.compress(compressDir, archiveFileName, savePath, suffix, isDeleteExistFile)
+			TYPE_TAR_GZ -> TarTools.instance.compress(compressDir, archiveFileName, savePath, suffix, isDeleteExistFile, ignoreException)
+			TYPE_ZIP -> ZipTools.instance.compress(compressDir, archiveFileName, savePath, suffix, isDeleteExistFile, ignoreException)
 			else -> throw NoSuchElementException("类型错误")
 		}
 	}
 
 	fun decompress() {
 		when (type) {
-			TYPE_TAR_GZ -> TarTools.instance.decompress(decompressDir, archiveFile, isDelete)
-			TYPE_ZIP -> ZipTools.instance.decompress(decompressDir, archiveFile, isDelete)
+			TYPE_TAR_GZ -> TarTools.instance.decompress(decompressDir, archiveFile, isDelete, ignoreException)
+			TYPE_ZIP -> ZipTools.instance.decompress(decompressDir, archiveFile, isDelete, ignoreException)
 			else -> throw NoSuchElementException("类型错误")
 		}
+	}
+
+	/**
+	 * 是否忽略错误
+	 */
+	fun ignoreException(): ArchiveTools = ignoreException(true)
+
+	fun ignoreException(ignoreException: Boolean): ArchiveTools {
+		this.ignoreException = ignoreException
+		return this
 	}
 
 	/**

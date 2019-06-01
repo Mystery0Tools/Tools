@@ -24,6 +24,7 @@ import android.net.Uri
 import android.util.Base64
 import org.apache.commons.compress.utils.IOUtils
 import vip.mystery0.tools.ToolsException
+import vip.mystery0.tools.tryOrBoolean
 import java.io.*
 import java.nio.channels.FileChannel
 import java.security.MessageDigest
@@ -130,13 +131,16 @@ class FileTools private constructor() {
 	 * @param inputDir 输入路径
 	 * @param outputDir 输出路径
 	 */
-	fun copyDir(inputDir: File, outputDir: File) {
+	fun copyDir(inputDir: File, outputDir: File, ignoreException: Boolean = false) {
 		if (!inputDir.exists())
-			throw ToolsException(ToolsException.FILE_NOT_EXIST, "源目录不存在！")
+			if (ignoreException) return
+			else throw ToolsException(ToolsException.FILE_NOT_EXIST, "源目录不存在！")
 		if (!inputDir.isDirectory)
-			throw ToolsException(ToolsException.NOT_DIRECTORY, "该项不是目录：${inputDir.name}(${inputDir.absolutePath})")
+			if (ignoreException) return
+			else throw ToolsException(ToolsException.NOT_DIRECTORY, "该项不是目录：${inputDir.name}(${inputDir.absolutePath})")
 		if (!outputDir.exists() && !outputDir.mkdirs())
-			throw ToolsException(ToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
+			if (ignoreException) return
+			else throw ToolsException(ToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
 		inputDir.listFiles()
 				.forEach {
 					val outputFile = File(outputDir, it.name)
@@ -163,13 +167,16 @@ class FileTools private constructor() {
 	 * @param inputFile  输入路径
 	 * @param outputFile 输出路径
 	 */
-	fun copyFile(inputFile: File, outputFile: File) {
+	fun copyFile(inputFile: File, outputFile: File, ignoreException: Boolean = false) {
 		if (!inputFile.exists())
-			throw ToolsException(ToolsException.FILE_NOT_EXIST, "源文件不存在！")
+			if (ignoreException) return
+			else throw ToolsException(ToolsException.FILE_NOT_EXIST, "源文件不存在！")
 		if (!inputFile.isFile)
-			throw ToolsException(ToolsException.NOT_FILE, "该项不是文件：${inputFile.name}(${inputFile.absolutePath})")
+			if (ignoreException) return
+			else throw ToolsException(ToolsException.NOT_FILE, "该项不是文件：${inputFile.name}(${inputFile.absolutePath})")
 		if (!outputFile.parentFile.exists() && !outputFile.parentFile.mkdirs())
-			throw ToolsException(ToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
+			if (ignoreException) return
+			else throw ToolsException(ToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
 		var fileInputStream: FileInputStream? = null
 		var fileOutputStream: FileOutputStream? = null
 		try {
@@ -205,18 +212,14 @@ class FileTools private constructor() {
 	 */
 	fun copyFileToOutputStream(inputFile: File, outputStream: OutputStream?, closeStreamFinally: Boolean = true): Boolean {
 		var fileInputStream: FileInputStream? = null
-		return try {
+		return tryOrBoolean(trys = {
 			fileInputStream = FileInputStream(inputFile)
 			IOUtils.copy(fileInputStream, outputStream)
-			true
-		} catch (e: IOException) {
-			e.printStackTrace()
-			false
-		} finally {
+		}, finally = {
 			IOUtils.closeQuietly(fileInputStream)
 			if (closeStreamFinally)
 				IOUtils.closeQuietly(outputStream)
-		}
+		})
 	}
 
 	/**
@@ -232,18 +235,14 @@ class FileTools private constructor() {
 		if (outputFile.exists())
 			outputFile.delete()
 		var fileOutputStream: FileOutputStream? = null
-		return try {
+		return tryOrBoolean(trys = {
 			fileOutputStream = FileOutputStream(outputFile)
 			IOUtils.copy(inputStream, fileOutputStream)
-			true
-		} catch (e: IOException) {
-			e.printStackTrace()
-			false
-		} finally {
+		}, finally = {
 			if (closeStreamFinally)
 				IOUtils.closeQuietly(inputStream)
 			IOUtils.closeQuietly(fileOutputStream)
-		}
+		})
 	}
 
 	/**
@@ -257,10 +256,8 @@ class FileTools private constructor() {
 	 * 删除文件夹
 	 * @param dir 要删除的文件夹
 	 * @return 返回码
-	 * @see DONE 成功
-	 * @see FILE_NOT_EXIST 文件不存在
 	 */
-	fun deleteDir(dir: File, isDeleteDir: Boolean = true) {
+	fun deleteDir(dir: File, isDeleteDir: Boolean = true, ignoreException: Boolean = true) {
 		if (dir.exists()) {
 			if (dir.isDirectory) {
 				dir.listFiles().forEach {
@@ -271,27 +268,22 @@ class FileTools private constructor() {
 			} else
 				dir.delete()
 		} else
-			throw ToolsException(ToolsException.FILE_NOT_EXIST, "文件不存在：${dir.name}(${dir.absolutePath})")
+			if (!ignoreException)
+				throw ToolsException(ToolsException.FILE_NOT_EXIST, "文件不存在：${dir.name}(${dir.absolutePath})")
 	}
 
 	fun getMD5(file: File): String {
-		var md5 = ""
-		try {
-			val hexDigits = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f')
-			val messageDigest = MessageDigest.getInstance("MD5")
-			messageDigest.update(FileInputStream(file).channel.map(FileChannel.MapMode.READ_ONLY, 0, file.length()))
-			val bytes = messageDigest.digest()
-			val stringBuffer = StringBuffer(2 * bytes.size)
-			for (byte in bytes) {
-				val c0 = hexDigits[byte.toInt() and 0xf0 shr 4]
-				val c1 = hexDigits[byte.toInt() and 0xf]
-				stringBuffer.append(c0).append(c1)
-			}
-			md5 = stringBuffer.toString()
-		} catch (e: Exception) {
-			e.printStackTrace()
+		val hexDigits = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f')
+		val messageDigest = MessageDigest.getInstance("MD5")
+		messageDigest.update(FileInputStream(file).channel.map(FileChannel.MapMode.READ_ONLY, 0, file.length()))
+		val bytes = messageDigest.digest()
+		val stringBuffer = StringBuffer(2 * bytes.size)
+		for (byte in bytes) {
+			val c0 = hexDigits[byte.toInt() and 0xf0 shr 4]
+			val c1 = hexDigits[byte.toInt() and 0xf]
+			stringBuffer.append(c0).append(c1)
 		}
-		return md5
+		return stringBuffer.toString()
 	}
 
 	fun <T> write(filePath: String, data: T) {
