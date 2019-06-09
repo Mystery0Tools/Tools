@@ -81,7 +81,7 @@ class TarTools private constructor() {
 			if (tarArchiveEntry.isDirectory)
 				tempFile.mkdirs()
 			else {
-				val parent = tempFile.parentFile
+				val parent = tempFile.parentFile!!
 				if (!parent.exists()) parent.mkdirs()
 				val fileOutputStream = FileOutputStream(tempFile)
 				IOUtils.copy(tarArchiveInputStream, fileOutputStream)
@@ -107,7 +107,7 @@ class TarTools private constructor() {
 			}
 			file.isDirectory -> {
 				tarArchiveOutputStream.closeArchiveEntry()
-				file.listFiles().forEach {
+				file.listFiles()?.forEach {
 					addFilesToCompression(tarArchiveOutputStream, it, "$dir${File.separator}${file.name}${File.separator}")
 				}
 			}

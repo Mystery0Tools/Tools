@@ -38,8 +38,7 @@ class PackageTools private constructor() {
 		const val VERSION_O = Build.VERSION_CODES.O
 		const val VERSION_O_MR1 = Build.VERSION_CODES.O_MR1
 		const val VERSION_P = Build.VERSION_CODES.P
-		//	const val VERSION_Q = Build.VERSION_CODES.Q
-		const val VERSION_Q = 29
+		const val VERSION_Q = Build.VERSION_CODES.Q
 	}
 
 	private object Holder {
