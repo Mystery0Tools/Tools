@@ -142,7 +142,7 @@ class FileTools private constructor() {
 			if (ignoreException) return
 			else throw ToolsException(ToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
 		inputDir.listFiles()
-				.forEach {
+				?.forEach {
 					val outputFile = File(outputDir, it.name)
 					when {
 						it.isFile -> copyFile(it, outputFile)
@@ -174,7 +174,9 @@ class FileTools private constructor() {
 		if (!inputFile.isFile)
 			if (ignoreException) return
 			else throw ToolsException(ToolsException.NOT_FILE, "该项不是文件：${inputFile.name}(${inputFile.absolutePath})")
-		if (!outputFile.parentFile.exists() && !outputFile.parentFile.mkdirs())
+		if (outputFile.parentFile == null)
+			throw ToolsException(ToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
+		if (!outputFile.parentFile!!.exists() && !outputFile.parentFile!!.mkdirs())
 			if (ignoreException) return
 			else throw ToolsException(ToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
 		var fileInputStream: FileInputStream? = null
@@ -230,8 +232,10 @@ class FileTools private constructor() {
 	 * @return 存储结果
 	 */
 	fun copyInputStreamToFile(inputStream: InputStream?, outputFile: File, closeStreamFinally: Boolean = true): Boolean {
-		if (!outputFile.parentFile.exists())
-			outputFile.parentFile.mkdirs()
+		if (outputFile.parentFile == null)
+			throw ToolsException(ToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
+		if (!outputFile.parentFile!!.exists())
+			outputFile.parentFile!!.mkdirs()
 		if (outputFile.exists())
 			outputFile.delete()
 		var fileOutputStream: FileOutputStream? = null
@@ -260,7 +264,7 @@ class FileTools private constructor() {
 	fun deleteDir(dir: File, isDeleteDir: Boolean = true, ignoreException: Boolean = true) {
 		if (dir.exists()) {
 			if (dir.isDirectory) {
-				dir.listFiles().forEach {
+				dir.listFiles()?.forEach {
 					deleteDir(it)
 				}
 				if (isDeleteDir)
@@ -289,7 +293,7 @@ class FileTools private constructor() {
 	fun <T> write(filePath: String, data: T) {
 		val file = File(filePath)
 		if (file.exists()) file.delete()
-		if (!file.parentFile.exists()) file.parentFile.mkdirs()
+		if (!file.parentFile!!.exists()) file.parentFile!!.mkdirs()
 		var objectOutputStream: ObjectOutputStream? = null
 		try {
 			objectOutputStream = ObjectOutputStream(FileOutputStream(file))

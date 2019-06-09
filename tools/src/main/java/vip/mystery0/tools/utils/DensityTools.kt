@@ -34,7 +34,6 @@ class DensityTools private constructor() {
 	private val context by lazy { ToolsClient.getContext() }
 	/**
 	 * dp转px
-	 * @param context 上下文
 	 * @param dpValue dp值
 	 * @return 转换之后的px值
 	 */
@@ -42,7 +41,6 @@ class DensityTools private constructor() {
 
 	/**
 	 * dp转px
-	 * @param context 上下文
 	 * @param dpValue dp值
 	 * @return 转换之后的px值
 	 */
@@ -50,7 +48,6 @@ class DensityTools private constructor() {
 
 	/**
 	 * px转dp
-	 * @param context 上下文
 	 * @param pxValue px值
 	 * @return 转换之后的dp值
 	 */
@@ -58,7 +55,6 @@ class DensityTools private constructor() {
 
 	/**
 	 * px转dp
-	 * @param context 上下文
 	 * @param pxValue px值
 	 * @return 转换之后的dp值
 	 */
@@ -66,7 +62,6 @@ class DensityTools private constructor() {
 
 	/**
 	 * 获取屏幕宽度
-	 * @param context 上下文
 	 * @return px值
 	 */
 	fun getScreenWidth(): Int = context.resources.displayMetrics.widthPixels
@@ -74,7 +69,6 @@ class DensityTools private constructor() {
 
 	/**
 	 * 获取屏幕高度
-	 * @param context 上下文
 	 * @return px值
 	 */
 	fun getScreenHeight(): Int = context.resources.displayMetrics.heightPixels

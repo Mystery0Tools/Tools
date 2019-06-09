@@ -19,7 +19,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-	compileSdkVersion 28
+	compileSdkVersion 29
 
 	dataBinding {
 		enabled = true
@@ -27,7 +27,7 @@ android {
 
 	defaultConfig {
 		minSdkVersion 18
-		targetSdkVersion 28
+		targetSdkVersion 29
 		versionCode 1
 		versionName POM_VERSION
 

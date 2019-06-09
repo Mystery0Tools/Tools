@@ -86,7 +86,7 @@ class ZipTools private constructor() {
 			}
 			file.isDirectory -> {
 				zipArchiveOutputStream.closeArchiveEntry()
-				file.listFiles().forEach {
+				file.listFiles()?.forEach {
 					addFilesToCompression(zipArchiveOutputStream, it, "$dir${File.separator}${file.name}${File.separator}")
 				}
 			}
@@ -104,7 +104,7 @@ class ZipTools private constructor() {
 				currentFile.mkdirs()
 				continue
 			} else
-				currentFile.parentFile.mkdirs()
+				currentFile.parentFile?.mkdirs()
 			val fileOutputStream = FileOutputStream(currentFile)
 			val inputStream = zipFile.getInputStream(zipEntry)
 			IOUtils.copy(inputStream, fileOutputStream)

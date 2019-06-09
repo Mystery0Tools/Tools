@@ -7,6 +7,7 @@ import java.io.InputStreamReader
 
 class CommandTools private constructor() {
 	companion object {
+		private val TAG = CommandTools::class.java.simpleName
 		@JvmField
 		val INSTANCE = Holder.holder
 		@JvmField
@@ -21,8 +22,6 @@ class CommandTools private constructor() {
 	private object Holder {
 		val holder = CommandTools()
 	}
-
-	private val TAG = CommandTools::class.java.simpleName
 	var isDebug = false
 
 	/**
