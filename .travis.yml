@@ -13,7 +13,7 @@ before_install:
 - chmod +x gradlew  # 改变gradlew的访问权限
 
 install:
-- echo y | sdkmanager --licenses
+- echo y | sdkmanager "platforms;android-29"
 
 #script:              # 执行:下面的命令
 #- ./gradlew assembleRelease
