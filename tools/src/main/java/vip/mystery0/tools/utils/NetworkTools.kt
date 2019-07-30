@@ -5,6 +5,9 @@ import android.net.ConnectivityManager
 import androidx.annotation.RequiresPermission
 import vip.mystery0.tools.ToolsClient
 
+@RequiresPermission(android.Manifest.permission.ACCESS_NETWORK_STATE)
+fun isConnectInternet(): Boolean = NetworkTools.instance.isConnectInternet()
+
 class NetworkTools private constructor() {
 	companion object {
 		@JvmField

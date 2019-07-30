@@ -3,6 +3,8 @@ package vip.mystery0.tools.utils
 import android.os.Build
 import vip.mystery0.tools.ToolsClient
 
+fun Int.getAndroidName(): String = PackageTools.instance.nameOf(this)
+
 class PackageTools private constructor() {
 	companion object {
 		@JvmField

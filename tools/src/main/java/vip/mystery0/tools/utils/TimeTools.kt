@@ -1,5 +1,16 @@
 package vip.mystery0.tools.utils
 
+import java.text.SimpleDateFormat
+import java.util.*
+
+fun Long.formatTime(): String = TimeTools.instance.formatTime(this)
+fun Calendar.equalsDate(calendar: Calendar): Boolean = TimeTools.instance.equalsDate(this, calendar)
+fun Calendar.equalsTime(calendar: Calendar): Boolean = TimeTools.instance.equalsTime(this, calendar)
+fun Long.toCalendar(): Calendar = TimeTools.instance.getCalendarFromLong(this)
+fun Calendar.toDateTimeString(): String = TimeTools.instance.toDateTimeString(this)
+fun Calendar.toDateString(): String = TimeTools.instance.toDateString(this)
+fun Calendar.toTimeString(): String = TimeTools.instance.toTimeString(this)
+
 class TimeTools private constructor() {
 	companion object {
 		@JvmField
@@ -17,13 +28,13 @@ class TimeTools private constructor() {
 	 * @param ms
 	 * @return
 	 */
-	fun formatTime(ms: Long?): String {
+	fun formatTime(ms: Long): String {
 		val ss = 1000
 		val mi = ss * 60
 		val hh = mi * 60
 		val dd = hh * 24
 
-		val day = ms!! / dd
+		val day = ms / dd
 		val hour = (ms - day * dd) / hh
 		val minute = (ms - day * dd - hour * hh) / mi
 		val second = (ms - day * dd - hour * hh - minute * mi) / ss
@@ -47,4 +58,21 @@ class TimeTools private constructor() {
 		}
 		return sb.toString()
 	}
+
+	private val simpleDateFormat by lazy { SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA) }
+	private val showDateFormat by lazy { SimpleDateFormat("yyyy-MM-dd", Locale.CHINA) }
+	private val showTimeFormat by lazy { SimpleDateFormat("HH:mm:ss", Locale.CHINA) }
+
+	fun equalsDate(calendar1: Calendar, calendar2: Calendar): Boolean = showDateFormat.format(calendar1.time) == showDateFormat.format(calendar2.time)
+	fun equalsTime(calendar1: Calendar, calendar2: Calendar): Boolean = showTimeFormat.format(calendar1.time) == showTimeFormat.format(calendar2.time)
+
+	fun getCalendarFromLong(long: Long): Calendar {
+		val calendar = Calendar.getInstance()
+		calendar.timeInMillis = long
+		return calendar
+	}
+
+	fun toDateTimeString(calendar: Calendar): String = simpleDateFormat.format(calendar.time)
+	fun toDateString(calendar: Calendar): String = showDateFormat.format(calendar.time)
+	fun toTimeString(calendar: Calendar): String = showTimeFormat.format(calendar.time)
 }
