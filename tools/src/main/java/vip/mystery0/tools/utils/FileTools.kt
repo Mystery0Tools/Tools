@@ -30,6 +30,10 @@ import java.nio.channels.FileChannel
 import java.security.MessageDigest
 import java.text.DecimalFormat
 
+fun File.getFormatFileSize(decimalNum: Int = 2): String = FileTools.instance.formatFileSize(this, decimalNum)
+fun Long.getFormatFileSize(decimalNum: Int = 2): String = FileTools.instance.formatFileSize(this, decimalNum)
+fun File.md5(): String = FileTools.instance.getMD5(this)
+
 class FileTools private constructor() {
 	companion object {
 		@JvmField

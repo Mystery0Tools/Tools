@@ -2,6 +2,10 @@ package vip.mystery0.tools.utils
 
 import java.security.MessageDigest
 
+fun String.md5(): String = StringTools.instance.md5(this)
+fun String.sha1(): String = StringTools.instance.sha1(this)
+fun String.sha256(): String = StringTools.instance.sha256(this)
+
 class StringTools private constructor() {
 	companion object {
 		@JvmField

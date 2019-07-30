@@ -19,6 +19,13 @@ package vip.mystery0.tools.utils
 
 import vip.mystery0.tools.ToolsClient
 
+fun dp2px(dpValue: Float): Int = DensityTools.instance.dp2px(dpValue)
+fun dp2px(dpValue: Int): Float = DensityTools.instance.dp2px(dpValue)
+fun px2dp(dpValue: Float): Int = DensityTools.instance.px2dp(dpValue)
+fun px2dp(dpValue: Int): Float = DensityTools.instance.px2dp(dpValue)
+fun getScreenWidth(): Int = DensityTools.instance.getScreenWidth()
+fun getScreenHeight(): Int = DensityTools.instance.getScreenHeight()
+
 class DensityTools private constructor() {
 	companion object {
 		@JvmField
