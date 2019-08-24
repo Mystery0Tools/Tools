@@ -1,5 +1,8 @@
 package vip.mystery0.rx
 
+import android.content.Context
+import androidx.annotation.StringRes
+
 fun <T> dataContent(data: T?): PackageData<T> = PackageData.content(data)
 fun <T> dataError(data: T?, error: Throwable?): PackageData<T> = PackageData.error(data, error)
 fun <T> dataError(error: Throwable?): PackageData<T> = PackageData.error(error)
@@ -33,4 +36,8 @@ class PackageData<T>(val status: Status,
 		@JvmStatic
 		fun <T> loading(): PackageData<T> = PackageData(Status.Loading, null, null)
 	}
+}
+
+class ResourceException(@StringRes val id: Int) : RuntimeException() {
+	fun message(context: Context): String = context.getString(id)
 }
