@@ -50,6 +50,9 @@ class DataManager private constructor(threadNum: Int) {
 			}
 			instance = DataManager(threadNum)
 		}
+
+		@JvmStatic
+		fun instance(): DataManager = instance!!
 	}
 
 	private val threadPool by lazy { Executors.newFixedThreadPool(threadNum) }
