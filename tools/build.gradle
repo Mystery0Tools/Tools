@@ -17,6 +17,7 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
 	compileSdkVersion 29
@@ -41,14 +42,16 @@ android {
 }
 
 dependencies {
-	implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
+	implementation 'androidx.appcompat:appcompat:1.1.0'
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-	compileOnly 'androidx.preference:preference:1.1.0-rc01'
+	compileOnly 'androidx.preference:preference:1.1.0'
 	compileOnly 'com.squareup.okhttp3:okhttp:4.1.0'
 	compileOnly 'io.reactivex.rxjava2:rxandroid:2.1.1'
 	compileOnly 'io.reactivex.rxjava2:rxjava:2.2.10'
 	implementation 'com.google.code.gson:gson:2.8.5'
 	implementation 'org.apache.commons:commons-compress:1.18'
+	implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines"
+	implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines"
 }
 repositories {
 	mavenCentral()
