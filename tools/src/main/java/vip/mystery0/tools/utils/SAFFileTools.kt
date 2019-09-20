@@ -53,7 +53,7 @@ fun DocumentFile?.getChildDirectory(dirName: String, deleteWhenNotDirectory: Boo
  */
 @SuppressLint("NewApi")
 fun DocumentFile?.mkdirs(context: Context, rootTreeUri: Uri): Boolean {
-	if (PackageTools.instance.isAfter(PackageTools.VERSION_N) && !DocumentsContract.isTreeUri(rootTreeUri))
+	if (sdkIsAfter(AndroidVersionCode.VERSION_N) && !DocumentsContract.isTreeUri(rootTreeUri))
 		return false
 	fun DocumentFile?.checkParentUri(rootTreeUri: Uri, list: ArrayList<String>) {
 		if (this == null)
@@ -77,7 +77,7 @@ fun DocumentFile?.mkdirs(context: Context, rootTreeUri: Uri): Boolean {
  */
 @SuppressLint("NewApi")
 fun mkdirs(context: Context, rootTreeUri: Uri, levelList: List<String>): Boolean {
-	if (PackageTools.instance.isAfter(PackageTools.VERSION_N) && !DocumentsContract.isTreeUri(rootTreeUri))
+	if (sdkIsAfter(AndroidVersionCode.VERSION_N) && !DocumentsContract.isTreeUri(rootTreeUri))
 		return false
 	var parent = DocumentFile.fromTreeUri(context, rootTreeUri)
 	levelList.forEach {

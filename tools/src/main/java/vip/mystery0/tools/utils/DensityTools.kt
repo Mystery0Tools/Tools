@@ -17,66 +17,44 @@
 
 package vip.mystery0.tools.utils
 
-import vip.mystery0.tools.ToolsClient
+import vip.mystery0.tools.context
 
-fun dp2px(dpValue: Float): Int = DensityTools.instance.dp2px(dpValue)
-fun dp2px(dpValue: Int): Float = DensityTools.instance.dp2px(dpValue)
-fun px2dp(dpValue: Float): Int = DensityTools.instance.px2dp(dpValue)
-fun px2dp(dpValue: Int): Float = DensityTools.instance.px2dp(dpValue)
-fun getScreenWidth(): Int = DensityTools.instance.getScreenWidth()
-fun getScreenHeight(): Int = DensityTools.instance.getScreenHeight()
+/**
+ * dp转px
+ * @param dpValue dp值
+ * @return 转换之后的px值
+ */
+fun dpTopx(dpValue: Float): Int = (dpValue * context().resources.displayMetrics.density + 0.5).toInt()
 
-class DensityTools private constructor() {
-	companion object {
-		@JvmField
-		val INSTANCE = Holder.holder
-		@JvmField
-		val instance = INSTANCE
-	}
+/**
+ * dp转px
+ * @param dpValue dp值
+ * @return 转换之后的px值
+ */
+fun dpTopx(dpValue: Int): Float = dpValue * context().resources.displayMetrics.density + 0.5f
 
-	private object Holder {
-		val holder = DensityTools()
-	}
+/**
+ * px转dp
+ * @param pxValue px值
+ * @return 转换之后的dp值
+ */
+fun pxTodp(pxValue: Float): Int = (pxValue / context().resources.displayMetrics.density + 0.5).toInt()
 
-	private val context by lazy { ToolsClient.getContext() }
-	/**
-	 * dp转px
-	 * @param dpValue dp值
-	 * @return 转换之后的px值
-	 */
-	fun dp2px(dpValue: Float): Int = (dpValue * context.resources.displayMetrics.density + 0.5).toInt()
+/**
+ * px转dp
+ * @param pxValue px值
+ * @return 转换之后的dp值
+ */
+fun pxTodp(pxValue: Int): Float = pxValue / context().resources.displayMetrics.density + 0.5f
 
-	/**
-	 * dp转px
-	 * @param dpValue dp值
-	 * @return 转换之后的px值
-	 */
-	fun dp2px(dpValue: Int): Float = dpValue * context.resources.displayMetrics.density + 0.5f
+/**
+ * 获取屏幕宽度
+ * @return px值
+ */
+fun screenWidth(): Int = context().resources.displayMetrics.widthPixels
 
-	/**
-	 * px转dp
-	 * @param pxValue px值
-	 * @return 转换之后的dp值
-	 */
-	fun px2dp(pxValue: Float): Int = (pxValue / context.resources.displayMetrics.density + 0.5).toInt()
-
-	/**
-	 * px转dp
-	 * @param pxValue px值
-	 * @return 转换之后的dp值
-	 */
-	fun px2dp(pxValue: Int): Float = pxValue / context.resources.displayMetrics.density + 0.5f
-
-	/**
-	 * 获取屏幕宽度
-	 * @return px值
-	 */
-	fun getScreenWidth(): Int = context.resources.displayMetrics.widthPixels
-
-
-	/**
-	 * 获取屏幕高度
-	 * @return px值
-	 */
-	fun getScreenHeight(): Int = context.resources.displayMetrics.heightPixels
-}
+/**
+ * 获取屏幕高度
+ * @return px值
+ */
+fun screenHeight(): Int = context().resources.displayMetrics.heightPixels

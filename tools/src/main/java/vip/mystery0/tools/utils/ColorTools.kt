@@ -18,33 +18,24 @@
 package vip.mystery0.tools.utils
 
 import android.graphics.Color
-import androidx.annotation.ColorInt
+import java.util.*
 
-class ColorTools private constructor() {
-	companion object {
-		@JvmField
-		val INSTANCE = Holder.holder
-		@JvmField
-		val instance = INSTANCE
-	}
+fun Int.withColorAlpha(alpha: Int = 255): Int = Color.parseColor(toColorString(alpha))
 
-	private object Holder {
-		val holder = ColorTools()
-	}
-
-	fun parseColor(@ColorInt color: Int, alpha: Int = 255): Int = Color.parseColor(parseColorToString(color, alpha))
-
-	fun parseColorToString(@ColorInt color: Int, alpha: Int = 255): String {
-		val stringBuilder = StringBuilder()
-		stringBuilder.append('#')
-		val alphaString = Integer.toHexString(alpha).toUpperCase()
+fun Int.toColorString(alpha: Int = 255,
+					  showAlpha: Boolean = true,
+					  locale: Locale = Locale.CHINA): String {
+	val stringBuilder = StringBuilder()
+	stringBuilder.append('#')
+	if (showAlpha) {
+		val alphaString = Integer.toHexString(alpha).toUpperCase(locale)
 		stringBuilder.append(if (alphaString.length < 2) "0$alphaString" else alphaString)
-		val redString = Integer.toHexString(Color.red(color)).toUpperCase()
-		val greenString = Integer.toHexString(Color.green(color)).toUpperCase()
-		val blueString = Integer.toHexString(Color.blue(color)).toUpperCase()
-		stringBuilder.append(if (redString.length < 2) "0$redString" else redString)
-		stringBuilder.append(if (greenString.length < 2) "0$greenString" else greenString)
-		stringBuilder.append(if (blueString.length < 2) "0$blueString" else blueString)
-		return stringBuilder.toString()
 	}
+	val redString = Integer.toHexString(Color.red(this)).toUpperCase(locale)
+	val greenString = Integer.toHexString(Color.green(this)).toUpperCase(locale)
+	val blueString = Integer.toHexString(Color.blue(this)).toUpperCase(locale)
+	stringBuilder.append(if (redString.length < 2) "0$redString" else redString)
+	stringBuilder.append(if (greenString.length < 2) "0$greenString" else greenString)
+	stringBuilder.append(if (blueString.length < 2) "0$blueString" else blueString)
+	return stringBuilder.toString()
 }
