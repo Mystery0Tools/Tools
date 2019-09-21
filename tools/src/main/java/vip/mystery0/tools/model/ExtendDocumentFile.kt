@@ -5,14 +5,17 @@ import android.net.Uri
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import vip.mystery0.tools.ToolsClient
-import vip.mystery0.tools.utils.PackageTools
-import vip.mystery0.tools.utils.getChildDirectory
-import vip.mystery0.tools.utils.getChildFile
-import vip.mystery0.tools.utils.mkdirs
+import vip.mystery0.tools.context
+import vip.mystery0.tools.tryOrBoolean
+import vip.mystery0.tools.utils.*
 import java.io.*
 import java.net.URI
 import java.net.URL
 import java.nio.file.Path
+
+fun Uri?.toEDFileForTreeUri(): ExtendDocumentFile? = ExtendDocumentFile.Factory.createByTreeUri(this)
+fun Uri?.toEDFileForSingleUri(): ExtendDocumentFile? = ExtendDocumentFile.Factory.createBySingleUri(this)
+fun DocumentFile?.toEDFileForDocumentFile(): ExtendDocumentFile? = ExtendDocumentFile.Factory.createByDocumentFile(this)
 
 class ExtendDocumentFile : File {
 	private lateinit var documentFile: DocumentFile
@@ -86,26 +89,12 @@ class ExtendDocumentFile : File {
 	fun renameTo(dest: ExtendDocumentFile?): Boolean {
 		if (dest == null)
 			return false
-		var fileInputStream: FileInputStream? = null
-		var fileOutputStream: FileOutputStream? = null
-		try {
-			fileInputStream = FileInputStream(ToolsClient.getContext().contentResolver.openFileDescriptor(uri, "r")?.fileDescriptor)
-			fileOutputStream = FileOutputStream(ToolsClient.getContext().contentResolver.openFileDescriptor(dest.uri, "w")?.fileDescriptor)
-			val bytes = ByteArray(1024 * 1024 * 10)
-			var readCount = 0
-			while (readCount != -1) {
-				fileOutputStream.write(bytes, 0, readCount)
-				readCount = fileInputStream.read(bytes)
-			}
-			delete()
-			return true
-		} catch (e: Exception) {
-			e.printStackTrace()
-			return false
-		} finally {
-			fileInputStream?.close()
-			fileOutputStream?.close()
+		val fileInputStream = FileInputStream(context().contentResolver.openFileDescriptor(uri, "r")!!.fileDescriptor)
+		val fileOutputStream = FileOutputStream(context().contentResolver.openFileDescriptor(dest.uri, "w")!!.fileDescriptor)
+		val result = tryOrBoolean {
+			PairStream(fileInputStream, fileOutputStream).copy()
 		}
+		return result && delete()
 	}
 
 	override fun getName(): String? = documentFile.name
@@ -251,13 +240,15 @@ class ExtendDocumentFile : File {
 
 	object Factory {
 		@SuppressLint("NewApi")
-		fun createByTreeUri(uri: Uri): ExtendDocumentFile? {
-			if (PackageTools.instance.isAfter(PackageTools.VERSION_N) && !DocumentsContract.isTreeUri(uri))
+		fun createByTreeUri(uri: Uri?): ExtendDocumentFile? {
+			if (sdkIsAfter(AndroidVersionCode.VERSION_N) && !DocumentsContract.isTreeUri(uri))
+				return null
+			if (uri == null)
 				return null
 			return createByDocumentFile(DocumentFile.fromTreeUri(ToolsClient.getContext(), uri))
 		}
 
-		fun createBySingleUri(uri: Uri): ExtendDocumentFile? = createByDocumentFile(DocumentFile.fromSingleUri(ToolsClient.getContext(), uri))
+		fun createBySingleUri(uri: Uri?): ExtendDocumentFile? = if (uri == null) null else createByDocumentFile(DocumentFile.fromSingleUri(ToolsClient.getContext(), uri))
 
 		fun createByDocumentFile(file: DocumentFile?): ExtendDocumentFile? {
 			if (file == null) return null

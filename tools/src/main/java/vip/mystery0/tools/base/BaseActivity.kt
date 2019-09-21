@@ -19,19 +19,26 @@ package vip.mystery0.tools.base
 
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.material.snackbar.Snackbar
 
 abstract class BaseActivity(@LayoutRes private val layoutId: Int?) : AppCompatActivity() {
-	val permissionArray: ArrayList<Array<String>> by lazy { ArrayList<Array<String>>() }
-	val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList<(Int, IntArray) -> Unit>() }
+	private val permissionArray: ArrayList<Array<String>> by lazy { ArrayList<Array<String>>() }
+	private val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList<(Int, IntArray) -> Unit>() }
+	private var toast: Toast? = null
+	private var snackBar: Snackbar? = null
+	private lateinit var snackBarView: View
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		if (layoutId != null)
 			inflateView(layoutId)
+		snackBarView = getSnackBarView()
 		bindView()
 		initView()
 		initData()
@@ -44,12 +51,36 @@ abstract class BaseActivity(@LayoutRes private val layoutId: Int?) : AppCompatAc
 		setContentView(layoutId)
 	}
 
+	open fun getSnackBarView(): View = findViewById(android.R.id.content)
+
 	open fun bindView() {}
 	open fun initView() {}
 	open fun initData() {}
 	open fun loadDataToView() {}
 	open fun requestData() {}
 	open fun monitor() {}
+
+	fun String?.toast(showLong: Boolean) {
+		if (this != null)
+			toastMessage(this, showLong)
+	}
+
+	fun String?.snackBar(showLong: Boolean) {
+		if (this != null)
+			snackBarMessage(this, showLong)
+	}
+
+	fun toastMessage(text: String, showLong: Boolean = false) {
+		toast?.cancel()
+		toast = Toast.makeText(this, text, if (showLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
+		toast?.show()
+	}
+
+	fun snackBarMessage(text: String, showLong: Boolean = false) {
+		snackBar?.dismiss()
+		snackBar = Snackbar.make(snackBarView, text, if (showLong) Snackbar.LENGTH_LONG else Snackbar.LENGTH_SHORT)
+		snackBar?.show()
+	}
 
 	fun reRequestPermission(requestCode: Int) {
 		if (requestCode < permissionMap.size)

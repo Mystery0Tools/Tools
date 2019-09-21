@@ -2,15 +2,21 @@ package vip.mystery0.tools.base
 
 import android.content.pm.PackageManager
 import android.os.Bundle
-import androidx.preference.Preference
-import androidx.annotation.XmlRes
+import android.view.View
+import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.annotation.XmlRes
 import androidx.core.content.ContextCompat
+import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import com.google.android.material.snackbar.Snackbar
 
 abstract class BasePreferenceFragment(@XmlRes private val preferencesResId: Int) : PreferenceFragmentCompat() {
-	val permissionArray: ArrayList<Array<String>> by lazy { ArrayList<Array<String>>() }
-	val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList<(Int, IntArray) -> Unit>() }
+	private val permissionArray: ArrayList<Array<String>> by lazy { ArrayList<Array<String>>() }
+	private val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList<(Int, IntArray) -> Unit>() }
+	private var toast: Toast? = null
+	private var snackBar: Snackbar? = null
+	private lateinit var snackBarView: View
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 		setPreferencesFromResource(preferencesResId, rootKey)
@@ -18,13 +24,38 @@ abstract class BasePreferenceFragment(@XmlRes private val preferencesResId: Int)
 
 	override fun onActivityCreated(savedInstanceState: Bundle?) {
 		super.onActivityCreated(savedInstanceState)
+		snackBarView = getSnackBarView()
 		initPreference()
 		monitor()
 	}
 
 	open fun initPreference() {}
 
+	abstract fun getSnackBarView(): View
+
 	open fun monitor() {}
+
+	fun String?.toast(showLong: Boolean) {
+		if (this != null)
+			toastMessage(this, showLong)
+	}
+
+	fun String?.snackBar(showLong: Boolean) {
+		if (this != null)
+			snackBarMessage(this, showLong)
+	}
+
+	fun toastMessage(text: String, showLong: Boolean = false) {
+		toast?.cancel()
+		toast = Toast.makeText(context, text, if (showLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
+		toast?.show()
+	}
+
+	fun snackBarMessage(text: String, showLong: Boolean = false) {
+		snackBar?.dismiss()
+		snackBar = Snackbar.make(snackBarView, text, if (showLong) Snackbar.LENGTH_LONG else Snackbar.LENGTH_SHORT)
+		snackBar?.show()
+	}
 
 	fun <T : Preference> findPreferenceById(@StringRes id: Int): T = findPreference(getString(id))!!
 

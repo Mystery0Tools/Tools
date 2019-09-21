@@ -2,7 +2,7 @@ package vip.mystery0.cookie
 
 import android.content.Context
 import android.content.SharedPreferences
-import vip.mystery0.tools.ToolsClient
+import vip.mystery0.tools.context
 
 class CookieManager private constructor() {
 	companion object {
@@ -17,7 +17,7 @@ class CookieManager private constructor() {
 	}
 
 	private val cookiePreferences: SharedPreferences by lazy {
-		ToolsClient.getContext().getSharedPreferences("cookie", Context.MODE_PRIVATE)
+		context().getSharedPreferences("cookie", Context.MODE_PRIVATE)
 	}
 
 	fun putCookie(domain: String, cookie: String?) = cookiePreferences.edit().putString(domain, cookie).apply()
