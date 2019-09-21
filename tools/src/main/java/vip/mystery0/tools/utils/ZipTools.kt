@@ -67,48 +67,35 @@ suspend fun File.zip(archiveFileName: String? = this.nameWithoutExtension,
 	return outputFile
 }
 
-class ZipTools private constructor() {
-	companion object {
-		@JvmField
-		val INSTANCE = Holder.holder
-		@JvmField
-		val instance = INSTANCE
-	}
+/**
+ *  解压缩 zip
+ *  @param dir 解压缩到的目录
+ */
+suspend fun <T : File> T?.unZip(dir: File,
+								isDelete: Boolean = false) {
+	val file = requireNotNull(this) { "文件不能为null" }
+	require(file.exists()) { "压缩文件（${file.name}）不存在" }
+	if (!dir.isDirectory)
+		dir.delete()
+	require(dir.exists() || dir.mkdirs()) { "输出目录创建失败" }
 
-	private object Holder {
-		val holder = ZipTools()
-	}
-
-	/**
-	 *  解压缩 zip
-	 *  @param dir 解压缩到的目录
-	 */
-	suspend fun <T : File> T?.unzip(dir: File,
-									isDelete: Boolean = false) {
-		val file = requireNotNull(this) { "文件不能为null" }
-		require(file.exists()) { "压缩文件（${file.name}）不存在" }
-		if (!dir.isDirectory)
-			dir.delete()
-		require(dir.exists() || dir.mkdirs()) { "输出目录创建失败" }
-
-		withContext(Dispatchers.IO) {
-			val zipFile = ZipFile(this@unzip, "GBK")
-			val entries = zipFile.entries
-			while (entries.hasMoreElements()) {
-				val zipEntry = entries.nextElement()
-				val name = zipEntry.name.replace("\\", "/")
-				val currentFile = File(dir, name)
-				if (name.endsWith("/")) {
-					currentFile.mkdirs()
-					continue
-				} else
-					currentFile.parentFile?.mkdirs()
-				val fileOutputStream = FileOutputStream(currentFile)
-				val inputStream = zipFile.getInputStream(zipEntry)
-				PairStream(inputStream, fileOutputStream).copy()
-			}
+	withContext(Dispatchers.IO) {
+		val zipFile = ZipFile(this@unzip, "GBK")
+		val entries = zipFile.entries
+		while (entries.hasMoreElements()) {
+			val zipEntry = entries.nextElement()
+			val name = zipEntry.name.replace("\\", "/")
+			val currentFile = File(dir, name)
+			if (name.endsWith("/")) {
+				currentFile.mkdirs()
+				continue
+			} else
+				currentFile.parentFile?.mkdirs()
+			val fileOutputStream = FileOutputStream(currentFile)
+			val inputStream = zipFile.getInputStream(zipEntry)
+			PairStream(inputStream, fileOutputStream).copy()
 		}
-		if (isDelete)
-			file.delete()
 	}
+	if (isDelete)
+		file.delete()
 }

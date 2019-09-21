@@ -58,3 +58,6 @@ fun screenWidth(): Int = context().resources.displayMetrics.widthPixels
  * @return px值
  */
 fun screenHeight(): Int = context().resources.displayMetrics.heightPixels
+
+val screenWidth: Int = screenWidth()
+val screenHeight: Int = screenHeight()

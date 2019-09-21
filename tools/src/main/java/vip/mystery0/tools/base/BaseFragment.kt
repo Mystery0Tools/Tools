@@ -2,18 +2,23 @@ package vip.mystery0.tools.base
 
 import android.content.pm.PackageManager
 import android.os.Bundle
-import androidx.annotation.IdRes
-import androidx.annotation.LayoutRes
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.annotation.IdRes
+import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import com.google.android.material.snackbar.Snackbar
 
 abstract class BaseFragment(@LayoutRes private val layoutId: Int) : Fragment() {
 	private var rootView: View? = null
-	val permissionArray: ArrayList<Array<String>> by lazy { ArrayList<Array<String>>() }
-	val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList<(Int, IntArray) -> Unit>() }
+	private val permissionArray: ArrayList<Array<String>> by lazy { ArrayList<Array<String>>() }
+	private val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList<(Int, IntArray) -> Unit>() }
+	private var toast: Toast? = null
+	private var snackBar: Snackbar? = null
+	private lateinit var snackBarView: View
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		if (rootView == null)
@@ -23,17 +28,42 @@ abstract class BaseFragment(@LayoutRes private val layoutId: Int) : Fragment() {
 
 	override fun onActivityCreated(savedInstanceState: Bundle?) {
 		super.onActivityCreated(savedInstanceState)
+		snackBarView = getSnackBarView()
 		initView()
 		monitor()
 	}
 
 	abstract fun initView()
 
+	open fun getSnackBarView(): View = findViewById(android.R.id.content)
+
 	open fun inflateView(layoutId: Int, inflater: LayoutInflater, container: ViewGroup?): View {
 		return inflater.inflate(layoutId, container, false)
 	}
 
 	open fun monitor() {}
+
+	fun String?.toast(showLong: Boolean) {
+		if (this != null)
+			toastMessage(this, showLong)
+	}
+
+	fun String?.snackBar(showLong: Boolean) {
+		if (this != null)
+			snackBarMessage(this, showLong)
+	}
+
+	fun toastMessage(text: String, showLong: Boolean = false) {
+		toast?.cancel()
+		toast = Toast.makeText(context, text, if (showLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
+		toast?.show()
+	}
+
+	fun snackBarMessage(text: String, showLong: Boolean = false) {
+		snackBar?.dismiss()
+		snackBar = Snackbar.make(snackBarView, text, if (showLong) Snackbar.LENGTH_LONG else Snackbar.LENGTH_SHORT)
+		snackBar?.show()
+	}
 
 	fun <T : View> findViewById(@IdRes id: Int): T {
 		return rootView!!.findViewById(id)
