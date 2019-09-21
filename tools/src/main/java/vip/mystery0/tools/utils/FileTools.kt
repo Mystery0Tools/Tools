@@ -36,6 +36,11 @@ private fun require(value: Boolean, lazyMessage: () -> Any) {
 	}
 }
 
+private fun <T : Any> requireNotNull(value: T?, lazyMessage: () -> Any): T {
+	require(value != null, lazyMessage)
+	return value!!
+}
+
 /**
  * 格式化文件大小
  * @param decimalNum 要格式化的小数位数
@@ -71,7 +76,8 @@ fun Long.toFormatFileSize(decimalNum: Int = 2): String {
  * @param inputPath 输入路径
  * @param outputPath 输出路径
  */
-fun copyToDir(inputPath: String, outputPath: String) {
+@Throws(IOException::class)
+suspend fun copyToDir(inputPath: String, outputPath: String) {
 	val inputDir = File(inputPath)
 	val outputDir = File(outputPath)
 	inputDir.copyToDir(outputDir)
@@ -82,7 +88,8 @@ fun copyToDir(inputPath: String, outputPath: String) {
  * @param inputPath  输入路径
  * @param outputPath 输出路径
  */
-fun copyToFile(inputPath: String, outputPath: String) {
+@Throws(IOException::class)
+suspend fun copyToFile(inputPath: String, outputPath: String) {
 	val inputFile = File(inputPath)
 	val outputFile = File(outputPath)
 	inputFile.copyToFile(outputFile)
@@ -93,23 +100,13 @@ fun copyToFile(inputPath: String, outputPath: String) {
  * @param outputFile 输出路径
  */
 @Throws(IOException::class)
-fun File.copyToFile(outputFile: File, ignoreException: Boolean = false) {
-	if (!this.exists())
-		if (ignoreException) return
-		else require(false) { "源文件不存在" }
-	if (!this.isFile)
-		if (ignoreException) return
-		else require(false) { "该项不是文件：${name}(${absolutePath})" }
-	if (outputFile.parentFile == null)
-		require(false) { "输出目录创建失败！" }
-	if (!outputFile.parentFile!!.exists() && !outputFile.parentFile!!.mkdirs())
-		if (ignoreException) return
-		else require(false) { "输出目录创建失败" }
-	FileInputStream(this).useToBoolean {
-		val fileOutputStream = FileOutputStream(outputFile)
-		it.copy(fileOutputStream)
-		fileOutputStream.closeQuietly(true)
-		Unit
+suspend fun File.copyToFile(outputFile: File) {
+	require(exists()) { "源文件不存在" }
+	require(isFile) { "该项不是文件：${name}(${absolutePath})" }
+	require(outputFile.parentFile != null) { "输出目录创建失败！" }
+	require(outputFile.parentFile!!.exists() || outputFile.parentFile!!.mkdirs()) { "输出目录创建失败" }
+	withContext(Dispatchers.IO) {
+		PairStream(FileInputStream(this@copyToFile), FileOutputStream(outputFile)).copy()
 	}
 }
 
@@ -118,16 +115,10 @@ fun File.copyToFile(outputFile: File, ignoreException: Boolean = false) {
  * @param outputDir 输出路径
  */
 @Throws(IOException::class)
-fun File.copyToDir(outputDir: File, ignoreException: Boolean = false) {
-	if (!exists())
-		if (ignoreException) return
-		else require(false) { "源目录不存在" }
-	if (!isDirectory)
-		if (ignoreException) return
-		else require(false) { "该项不是目录：${name}(${absolutePath})" }
-	if (!outputDir.exists() && !outputDir.mkdirs())
-		if (ignoreException) return
-		else require(false) { "输出目录创建失败！" }
+suspend fun File.copyToDir(outputDir: File): Boolean {
+	require(exists()) { "源目录不存在" }
+	require(isDirectory) { "该项不是目录：${name}(${absolutePath})" }
+	require(outputDir.exists() || outputDir.mkdirs()) { "输出目录创建失败！" }
 	listFiles()?.forEach {
 		val outputFile = File(outputDir, it.name)
 		when {
@@ -135,42 +126,35 @@ fun File.copyToDir(outputDir: File, ignoreException: Boolean = false) {
 			it.isDirectory -> it.copyToDir(outputFile)
 		}
 	}
+	return true
 }
 
 /**
  * 删除文件夹
  * @param path 要删除的文件夹路径
  * @param isDeleteDir 是否删除目录
- * @param ignoreException 是否忽略异常
  * @return 返回码
  */
-suspend fun deleteDir(path: String,
-					  isDeleteDir: Boolean = true,
-					  ignoreException: Boolean = true) = File(path).deleteDir(isDeleteDir, ignoreException)
+suspend fun deleteDir(path: String, isDeleteDir: Boolean = true) = File(path).deleteDir(isDeleteDir)
 
 /**
  * 删除文件夹
  * @param isDeleteDir 是否删除目录
- * @param ignoreException 是否忽略异常
  * @return 返回码
  */
-suspend fun File.deleteDir(isDeleteDir: Boolean = true,
-						   ignoreException: Boolean = true) {
-	if (exists()) {
-		withContext(Dispatchers.IO) {
-			if (isDirectory) {
-				listFiles()?.forEach {
-					it.deleteDir()
-				}
-				if (isDeleteDir)
-					delete()
-				Unit
-			} else
+suspend fun File.deleteDir(isDeleteDir: Boolean = true) {
+	require(exists()) { "文件不存在：${name}(${absolutePath})" }
+	withContext(Dispatchers.IO) {
+		if (isDirectory) {
+			listFiles()?.forEach {
+				it.deleteDir(isDeleteDir)
+			}
+			if (isDeleteDir)
 				delete()
-		}
-	} else
-		if (!ignoreException)
-			require(false) { "文件不存在：${name}(${absolutePath})" }
+			Unit
+		} else
+			delete()
+	}
 }
 
 /**
@@ -188,20 +172,15 @@ suspend fun Uri.cloneToFile(file: File) = context().contentResolver.openInputStr
  */
 @Throws(IOException::class)
 suspend fun <T : InputStream> T?.copyToFile(file: File,
-											closeInput: Boolean = true): Boolean {
-	require(this != null) { "输入流不能为空" }
-	require(file.parentFile != null) { "输出目录创建失败！" }
-	return withContext(Dispatchers.IO) {
+											closeInput: Boolean = true) {
+	requireNotNull(this) { "输入流不能为空" }
+	requireNotNull(file.parentFile) { "输出目录创建失败" }
+	withContext(Dispatchers.IO) {
 		if (!file.parentFile!!.exists())
 			file.parentFile?.mkdirs()
 		if (file.exists())
 			file.delete()
-		val result = FileOutputStream(file).useToBoolean {
-			this@copyToFile.copy(it)
-		}
-		if (closeInput)
-			closeQuietly(true)
-		result
+		PairStream(this@copyToFile!!, FileOutputStream(file)).copy(closeInput = closeInput)
 	}
 }
 
@@ -213,15 +192,11 @@ suspend fun <T : InputStream> T?.copyToFile(file: File,
  */
 @Throws(IOException::class)
 suspend fun File.copyToStream(outputStream: OutputStream?,
-							  closeOutput: Boolean = true): Boolean {
+							  closeOutput: Boolean = true) {
 	require(exists()) { "文件不存在" }
-	return withContext(Dispatchers.IO) {
-		FileInputStream(this@copyToStream).useToBoolean {
-			it.copy(outputStream)
-			if (closeOutput)
-				it.closeQuietly(true)
-			Unit
-		}
+	requireNotNull(outputStream) { "输出流不能为空" }
+	withContext(Dispatchers.IO) {
+		PairStream(FileInputStream(this@copyToStream), outputStream!!).copy(closeOutput = closeOutput)
 	}
 }
 
