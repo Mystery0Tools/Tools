@@ -1,131 +1,149 @@
 package vip.mystery0.tools.utils
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
-import org.apache.commons.compress.utils.IOUtils
-import vip.mystery0.tools.ToolsException
-import java.io.BufferedInputStream
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
+import java.io.*
 import java.util.zip.GZIPOutputStream
 
-class TarTools private constructor() {
-	companion object {
-		@JvmField
-		val INSTANCE = Holder.holder
-		@JvmField
-		val instance = INSTANCE
+private fun require(value: Boolean, lazyMessage: () -> Any) {
+	if (!value) {
+		val message = lazyMessage()
+		throw IOException(message.toString())
+	}
+}
+
+private fun <T : Any> requireNotNull(value: T?, lazyMessage: () -> Any): T {
+	require(value != null, lazyMessage)
+	return value!!
+}
+
+/**
+ * 归档指定目录
+ * @param archiveFileName 归档后文件名
+ * @param savePath 归档后文件存放路径
+ * @param suffix 归档后文件的扩展名
+ * @param isDeleteExistFile 是否替换已存在的文件
+ */
+@Throws(IOException::class)
+suspend fun <T : File> T?.tar(archiveFileName: String? = this?.nameWithoutExtension,
+							  savePath: File? = this?.parentFile,
+							  suffix: String = "tar",
+							  isDeleteExistFile: Boolean = true): File? {
+	val file = requireNotNull(this) { "文件不能为null" }
+	val outputFile = File(savePath, "$archiveFileName.$suffix")
+	if (outputFile.exists()) {
+		if (isDeleteExistFile)
+			outputFile.deleteDir()
+		else
+			return null
 	}
 
-	private object Holder {
-		val holder = TarTools()
-	}
-
-	/**
-	 * 归档并压缩指定目录
-	 * @param dir 归档的目录
-	 * @param archiveFileName 归档后文件名
-	 * @param savePath 归档后文件存放路径
-	 * @param suffix 归档后文件的扩展名
-	 * @param isDeleteExistFile 是否替换已存在的文件
-	 */
-	fun compress(dir: File,
-				 archiveFileName: String,
-				 savePath: File,
-				 suffix: String = "tar.gz",
-				 isDeleteExistFile: Boolean = true,
-				 ignoreException: Boolean = false) {
-		val tarGzFile = File(savePath, "$archiveFileName.$suffix")
-		if (tarGzFile.exists()) {
-			when {
-				isDeleteExistFile -> FileTools.instance.deleteDir(tarGzFile)
-				ignoreException -> return
-				else -> throw ToolsException(ToolsException.FILE_EXIST, "输出目录已存在同名文件！")
-			}
-		}
-		val tempTarFile = File(savePath, "$archiveFileName.tar")
-		FileTools.instance.deleteDir(tempTarFile)
-		pack(dir, tempTarFile)
-		val fileInputStream = FileInputStream(tempTarFile)
-		val gzipOutputStream = GZIPOutputStream(FileOutputStream(tarGzFile))
-		IOUtils.copy(fileInputStream, gzipOutputStream)
-		IOUtils.closeQuietly(fileInputStream)
-		IOUtils.closeQuietly(gzipOutputStream)
-		tempTarFile.delete()
-	}
-
-	/**
-	 *  解压缩 tar.gz
-	 *  @param dir 解压缩到的目录
-	 *  @param tarGzFile 需要解压缩的归档文件
-	 */
-	fun decompress(dir: File,
-				   tarGzFile: File,
-				   isDelete: Boolean = false,
-				   ignoreException: Boolean = false) {
-		if (!tarGzFile.exists())
-			if (ignoreException) return
-			else throw ToolsException(ToolsException.FILE_NOT_EXIST, "压缩文件（${tarGzFile.name}）不存在！")
-		if (!dir.isDirectory)
-			dir.delete()
-		if (!dir.exists() && !dir.mkdirs())
-			if (ignoreException) return
-			else throw ToolsException(ToolsException.MAKE_DIR_ERROR, "输出目录创建失败！")
-		val tarArchiveInputStream = TarArchiveInputStream(GzipCompressorInputStream(BufferedInputStream(FileInputStream(tarGzFile))))
-		var tarArchiveEntry: TarArchiveEntry? = tarArchiveInputStream.nextTarEntry
-		while (tarArchiveEntry != null) {
-			val tempFile = File(dir, tarArchiveEntry.name)
-			if (tarArchiveEntry.isDirectory)
-				tempFile.mkdirs()
-			else {
-				val parent = tempFile.parentFile!!
-				if (!parent.exists()) parent.mkdirs()
-				val fileOutputStream = FileOutputStream(tempFile)
-				IOUtils.copy(tarArchiveInputStream, fileOutputStream)
-				IOUtils.closeQuietly(fileOutputStream)
-			}
-			tarArchiveEntry = tarArchiveInputStream.nextTarEntry
-		}
-		IOUtils.closeQuietly(tarArchiveInputStream)
-		if (isDelete)
-			tarGzFile.delete()
-	}
-
-	private fun addFilesToCompression(tarArchiveOutputStream: TarArchiveOutputStream, file: File, dir: String) {
-		val tarArchiveEntry = TarArchiveEntry(file, "$dir${File.separator}${file.name}")
+	fun <T : File> T.addFilesToCompression(tarArchiveOutputStream: TarArchiveOutputStream, dir: String) {
+		val tarArchiveEntry = TarArchiveEntry(this, "$dir${File.separator}${name}")
 		tarArchiveOutputStream.putArchiveEntry(tarArchiveEntry)
 		when {
-			file.isFile -> {
-				tarArchiveEntry.size = file.length()
-				val bufferedInputStream = BufferedInputStream(FileInputStream(file))
-				IOUtils.copy(bufferedInputStream, tarArchiveOutputStream)
+			isFile -> {
+				tarArchiveEntry.size = length()
+				PairStream(BufferedInputStream(FileInputStream(this)), tarArchiveOutputStream).copy(closeOutput = false)
 				tarArchiveOutputStream.closeArchiveEntry()
-				IOUtils.closeQuietly(bufferedInputStream)
 			}
-			file.isDirectory -> {
+			isDirectory -> {
 				tarArchiveOutputStream.closeArchiveEntry()
-				file.listFiles()?.forEach {
-					addFilesToCompression(tarArchiveOutputStream, it, "$dir${File.separator}${file.name}${File.separator}")
+				listFiles()?.forEach {
+					it.addFilesToCompression(tarArchiveOutputStream, "$dir${File.separator}${name}${File.separator}")
 				}
 			}
 		}
 	}
 
-	/**
-	 * 将文件集合压缩成tar包后返回
-	 *
-	 * @param baseDir 要压缩的文件夹
-	 * @param target tar 输出流的目标文件
-	 * @return File  指定返回的目标文件
-	 */
-	private fun pack(baseDir: File, target: File): File {
-		val tarArchiveOutputStream = TarArchiveOutputStream(FileOutputStream(target))
-		tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
-		addFilesToCompression(tarArchiveOutputStream, baseDir, "")
-		IOUtils.closeQuietly(tarArchiveOutputStream)
-		return target
+	withContext(Dispatchers.IO) {
+		TarArchiveOutputStream(FileOutputStream(outputFile)).use {
+			it.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
+			file.addFilesToCompression(it, "")
+		}
+	}
+	return outputFile
+}
+
+@Throws(IOException::class)
+suspend fun <T : File> T?.gz(archiveFileName: String? = this?.nameWithoutExtension,
+							 savePath: File? = this?.parentFile,
+							 suffix: String = "gz",
+							 isDeleteExistFile: Boolean = true): File? {
+	val file = requireNotNull(this) { "文件不能为null" }
+	val outputFile = File(savePath, "$archiveFileName.$suffix")
+	if (outputFile.exists()) {
+		if (isDeleteExistFile)
+			outputFile.deleteDir()
+		else
+			return null
+	}
+	require(file.isFile) { "不是文件，无法压缩" }
+	withContext(Dispatchers.IO) {
+		Pair(FileInputStream(file), GZIPOutputStream(FileOutputStream(outputFile))).copy()
+	}
+	return outputFile
+}
+
+/**
+ * 归档并压缩指定目录
+ * @param archiveFileName 归档后文件名
+ * @param savePath 归档后文件存放路径
+ * @param suffix 归档后文件的扩展名
+ * @param isDeleteExistFile 是否替换已存在的文件
+ */
+@Throws(IOException::class)
+suspend fun <T : File> T?.tarGz(archiveFileName: String? = this?.nameWithoutExtension,
+								savePath: File? = this?.parentFile,
+								suffix: String = "tar.gz",
+								isDeleteExistFile: Boolean = true): File? {
+	val file = requireNotNull(this) { "文件不能为null" }
+	val outputFile = File(savePath, "$archiveFileName.$suffix")
+	if (outputFile.exists()) {
+		if (isDeleteExistFile)
+			outputFile.deleteDir()
+		else
+			return null
+	}
+	val tarFile = file.tar(isDeleteExistFile = isDeleteExistFile) ?: return null
+	val tarGzFile = tarFile.gz(archiveFileName, savePath, suffix, isDeleteExistFile)
+	tarFile.delete()
+	return tarGzFile
+}
+
+/**
+ *  解压缩 tar.gz
+ *  @param dir 解压缩到的目录
+ */
+@Throws(IOException::class)
+suspend fun <T : File> T?.unTarGz(dir: File,
+								  isDeleteOriginFile: Boolean = false) {
+	val file = requireNotNull(this) { "文件不能为null" }
+	require(file.exists()) { "压缩文件（${file.name}）不存在" }
+	if (!dir.isDirectory)
+		dir.delete()
+	require(dir.exists() || dir.mkdirs()) { "输出目录创建失败" }
+	withContext(Dispatchers.IO) {
+		TarArchiveInputStream(GzipCompressorInputStream(BufferedInputStream(FileInputStream(file)))).use {
+			var tarArchiveEntry: TarArchiveEntry? = it.nextTarEntry
+			while (tarArchiveEntry != null) {
+				val tempFile = File(dir, tarArchiveEntry.name)
+				if (tarArchiveEntry.isDirectory)
+					tempFile.mkdirs()
+				else {
+					val parent = tempFile.parentFile!!
+					if (!parent.exists()) parent.mkdirs()
+					val fileOutputStream = FileOutputStream(tempFile)
+					PairStream(it, fileOutputStream).copy()
+				}
+				tarArchiveEntry = it.nextTarEntry
+			}
+		}
+		if (isDeleteOriginFile)
+			file.delete()
 	}
 }
