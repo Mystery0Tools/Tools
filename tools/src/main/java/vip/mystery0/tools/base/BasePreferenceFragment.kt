@@ -2,7 +2,6 @@ package vip.mystery0.tools.base
 
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.annotation.XmlRes
@@ -26,8 +25,6 @@ abstract class BasePreferenceFragment(@XmlRes private val preferencesResId: Int)
 	}
 
 	open fun initPreference() {}
-
-	abstract fun getSnackBarView(): View
 
 	open fun monitor() {}
 
