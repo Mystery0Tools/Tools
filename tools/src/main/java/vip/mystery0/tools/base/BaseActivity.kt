@@ -53,10 +53,17 @@ abstract class BaseActivity(@LayoutRes private val layoutId: Int?) : AppCompatAc
 	open fun requestData() {}
 	open fun monitor() {}
 
-	fun String?.toast(showLong: Boolean) {
+	fun String?.toast(showLong: Boolean = false) {
 		if (this != null)
 			toastMessage(this, showLong)
 	}
+
+	fun Any?.toast(showLong: Boolean = false) {
+		if (this != null)
+			toastMessage(this, showLong)
+	}
+
+	fun toastMessage(any: Any, showLong: Boolean = false) = toastMessage(any.toString(), showLong)
 
 	fun toastMessage(text: String, showLong: Boolean = false) {
 		toast?.cancel()
