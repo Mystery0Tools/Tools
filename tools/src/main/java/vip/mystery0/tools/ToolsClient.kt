@@ -8,7 +8,6 @@ import androidx.annotation.ArrayRes
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
-import vip.mystery0.tools.model.Pair2
 
 private const val TAG = "ToolsClient"
 
@@ -18,19 +17,23 @@ fun getTColor(@ColorRes resId: Int): Int = ContextCompat.getColor(context(), res
 fun getTDrawable(@DrawableRes resId: Int): Drawable? = ContextCompat.getDrawable(context(), resId)
 fun getTStringArray(@ArrayRes resId: Int): Array<String> = context().resources.getStringArray(resId)
 
-fun <T : Any?, R> T.doByTry(`try`: (T) -> R): Pair2<R?, Exception?> = doByTry(`try`, null)
+fun <R> doByTry(`try`: (Unit) -> R): Pair<R?, Exception?> = Unit.doByTry(`try`)
+fun <R> doByTry(`try`: (Unit) -> R, finally: (() -> Unit)?): Pair<R?, Exception?> = Unit.doByTry(`try`, finally)
 
-fun <T : Any?, R> T.doByTry(`try`: (T) -> R, finally: (() -> Unit)?): Pair2<R?, Exception?> = try {
+fun <T : Any?, R> T.doByTry(`try`: (T) -> R): Pair<R?, Exception?> = doByTry(`try`, null)
+fun <T : Any?, R> T.doByTry(`try`: (T) -> R, finally: (() -> Unit)?): Pair<R?, Exception?> = try {
 	val r = `try`(this)
-	Pair2(r, null)
+	Pair(r, null)
 } catch (e: Exception) {
-	Pair2(null, e)
+	Pair(null, e)
 } finally {
 	finally?.invoke()
 }
 
-fun <T : Any?, R> T.doNoException(`try`: (T) -> R): R? = doNoException(`try`, null)
+fun <R> doNoException(`try`: (Unit) -> R): R? = Unit.doNoException(`try`)
+fun <R> doNoException(`try`: (Unit) -> R, finally: (() -> Unit)?): R? = Unit.doNoException(`try`, finally)
 
+fun <T : Any?, R> T.doNoException(`try`: (T) -> R): R? = doNoException(`try`, null)
 fun <T : Any?, R> T.doNoException(`try`: (T) -> R, finally: (() -> Unit)?): R? = try {
 	`try`(this)
 } catch (e: Exception) {
@@ -40,8 +43,10 @@ fun <T : Any?, R> T.doNoException(`try`: (T) -> R, finally: (() -> Unit)?): R? =
 	finally?.invoke()
 }
 
-fun <T : Any?> T.tryOrBoolean(`try`: (T) -> Unit): Boolean = tryOrBoolean(`try`, null)
+fun tryOrBoolean(`try`: (Unit) -> Unit) = Unit.tryOrBoolean(`try`)
+fun tryOrBoolean(`try`: (Unit) -> Unit, finally: (() -> Unit)?) = Unit.tryOrBoolean(`try`, finally)
 
+fun <T : Any?> T.tryOrBoolean(`try`: (T) -> Unit): Boolean = tryOrBoolean(`try`, null)
 fun <T : Any?> T.tryOrBoolean(`try`: (T) -> Unit, finally: (() -> Unit)?): Boolean = try {
 	`try`(this)
 	true
