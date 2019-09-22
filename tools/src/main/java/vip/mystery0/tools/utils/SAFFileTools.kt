@@ -5,7 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
-import vip.mystery0.tools.factory.MimeTypeFactory
+import vip.mystery0.tools.factory.getMimeType
 
 /**
  * 从当前路径获取子文件，如果不存在就创建
@@ -18,10 +18,10 @@ fun DocumentFile?.getChildFile(fileName: String, deleteWhenNotFile: Boolean = tr
 		return null
 	var file: DocumentFile? = this.findFile(fileName)
 	if (file == null || !file.exists())
-		return this.createFile(MimeTypeFactory.typeOfFileName(fileName), fileName)
+		return this.createFile(fileName.getMimeType(), fileName)
 	if (!file.isFile && deleteWhenNotFile) {
 		file.delete()
-		file = this.createFile(MimeTypeFactory.typeOfFileName(fileName), fileName)
+		file = this.createFile(fileName.getMimeType(), fileName)
 	}
 	return file
 }
