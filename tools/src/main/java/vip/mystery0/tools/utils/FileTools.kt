@@ -103,7 +103,7 @@ suspend fun copyToFile(inputPath: String, outputPath: String) {
 suspend fun File.copyToFile(outputFile: File) {
 	require(exists()) { "源文件不存在" }
 	require(isFile) { "该项不是文件：${name}(${absolutePath})" }
-	require(outputFile.parentFile != null) { "输出目录创建失败！" }
+	requireNotNull(outputFile.parentFile) { "输出目录创建失败！" }
 	require(outputFile.parentFile!!.exists() || outputFile.parentFile!!.mkdirs()) { "输出目录创建失败" }
 	withContext(Dispatchers.IO) {
 		PairStream(FileInputStream(this@copyToFile), FileOutputStream(outputFile)).copy()
@@ -166,21 +166,22 @@ suspend fun Uri.cloneToFile(file: File) = context().contentResolver.openInputStr
 
 /**
  * 将输入流的数据存储到文件中
- * @param file 要存储到的文件
+ * @param outputFile 要存储到的文件
  * @param closeInput 是否自动关闭输入流
  * @return 存储结果
  */
 @Throws(IOException::class)
-suspend fun <T : InputStream> T?.copyToFile(file: File,
+suspend fun <T : InputStream> T?.copyToFile(outputFile: File,
 											closeInput: Boolean = true) {
 	requireNotNull(this) { "输入流不能为空" }
-	requireNotNull(file.parentFile) { "输出目录创建失败" }
+	requireNotNull(outputFile.parentFile) { "输出目录创建失败！" }
+	require(outputFile.parentFile!!.exists() || outputFile.parentFile!!.mkdirs()) { "输出目录创建失败" }
 	withContext(Dispatchers.IO) {
-		if (!file.parentFile!!.exists())
-			file.parentFile?.mkdirs()
-		if (file.exists())
-			file.delete()
-		PairStream(this@copyToFile!!, FileOutputStream(file)).copy(closeInput = closeInput)
+		if (!outputFile.parentFile!!.exists())
+			outputFile.parentFile?.mkdirs()
+		if (outputFile.exists())
+			outputFile.delete()
+		PairStream(this@copyToFile!!, FileOutputStream(outputFile)).copy(closeInput = closeInput)
 	}
 }
 
@@ -254,4 +255,28 @@ fun File.md5(): String {
 		stringBuffer.append(c0).append(c1)
 	}
 	return stringBuffer.toString()
+}
+
+suspend fun String.writeToFile(outputFile: File) {
+	requireNotNull(outputFile.parentFile) { "输出目录创建失败！" }
+	require(outputFile.parentFile!!.exists() || outputFile.parentFile!!.mkdirs()) { "输出目录创建失败" }
+	withContext(Dispatchers.IO) {
+		BufferedWriter(FileWriter(outputFile)).use {
+			it.write(this@writeToFile)
+		}
+	}
+}
+
+suspend fun File.readToString(): String {
+	require(exists()) { "文件不存在" }
+	return withContext(Dispatchers.IO) {
+		val stringBuilder = StringBuilder()
+		val `in` = BufferedReader(FileReader(this@readToString))
+		var value = `in`.readLine()
+		while (value != null) {
+			stringBuilder.appendln(value)
+			value = `in`.readLine()
+		}
+		stringBuilder.toString()
+	}
 }
