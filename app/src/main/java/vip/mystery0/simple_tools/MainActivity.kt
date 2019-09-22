@@ -6,8 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import vip.mystery0.tools.base.BaseActivity
-import vip.mystery0.tools.utils.readToString
-import vip.mystery0.tools.utils.writeToFile
+import vip.mystery0.tools.utils.*
 import java.io.File
 
 class MainActivity : BaseActivity(R.layout.activity_main) {
@@ -30,9 +29,14 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
 			val dir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
 			val file = File(dir, "test.txt")
 			"this is test\nthis is second line".writeToFile(file)
-			val content = file.readToString()
-			toastMessage(content)
+			val outFile = File(dir, "out.txt")
+			file.copyToFile(outFile)
+			val content = outFile.readToString()
+			content.toast()
 			text_view.text = content
+			val outDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+			dir!!.copyToDir(outDir!!)
+			hasSuInBackground().toast()
 		}
 	}
 }
