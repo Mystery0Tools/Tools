@@ -271,16 +271,19 @@ suspend fun String.writeToFile(outputFile: File,
 	requireNotNull(outputFile.parentFile) { "输出目录创建失败！" }
 	require(outputFile.parentFile!!.exists() || outputFile.parentFile!!.mkdirs()) { "输出目录创建失败" }
 	withContext(Dispatchers.IO) {
-		FileWriter(outputFile, append).write(this@writeToFile)
+		BufferedWriter(FileWriter(outputFile, append)).use {
+			it.write(this@writeToFile)
+		}
 	}
 }
 
 /**
  * 从文件中读取字符串
  */
+@Throws(IOException::class)
 suspend fun File.readToString(): String {
 	require(exists()) { "文件不存在" }
 	return withContext(Dispatchers.IO) {
-		FileReader(this@readToString).readText()
+		BufferedReader(FileReader(this@readToString)).readText()
 	}
 }
