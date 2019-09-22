@@ -1,6 +1,8 @@
 package vip.mystery0.tools.utils
 
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.DataOutputStream
 import java.io.IOException
@@ -13,6 +15,10 @@ fun hasSu(): Boolean {
 	if (commandResult.errorMessage != null && (commandResult.errorMessage == CommandTools.PERMISSION_DENIED))
 		return false
 	return true
+}
+
+suspend fun hasSuInBackground(): Boolean = withContext(Dispatchers.Default) {
+	hasSu()
 }
 
 class CommandTools {
@@ -34,12 +40,20 @@ class CommandTools {
 	 */
 	fun execCommand(cmd: String): CommandResult = execCommand(arrayOf(cmd), false)
 
+	suspend fun execCommandInBackground(cmd: String): CommandResult = withContext(Dispatchers.Default) {
+		execCommand(cmd)
+	}
+
 	/**
 	 * 申请Root权限之后执行命令
 	 * @param cmd    执行的命令
 	 * @return       返回包含执行结果的对象
 	 */
 	fun execRootCommand(cmd: String): CommandResult = execCommand(arrayOf(cmd), true)
+
+	suspend fun execRootCommandInBackground(cmd: String): CommandResult = withContext(Dispatchers.Default) {
+		execCommand(cmd)
+	}
 
 	/**
 	 * 执行多条命令
@@ -48,12 +62,20 @@ class CommandTools {
 	 */
 	fun execCommands(cmds: Array<String>): CommandResult = execCommand(cmds, false)
 
+	suspend fun execCommandsInBackground(cmds: Array<String>): CommandResult = withContext(Dispatchers.Default) {
+		execCommands(cmds)
+	}
+
 	/**
 	 * Root后执行多条命令
 	 * @param cmds    执行的命令
 	 * @return        返回包含执行结果的对象
 	 */
 	fun execRootCommands(cmds: Array<String>): CommandResult = execCommand(cmds, true)
+
+	suspend fun execRootCommandsInBackground(cmds: Array<String>): CommandResult = withContext(Dispatchers.Default) {
+		execCommands(cmds)
+	}
 
 	@Throws(IOException::class)
 	private fun execCommand(commands: Array<String>, isRoot: Boolean): CommandResult {
