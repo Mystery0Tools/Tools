@@ -3,16 +3,18 @@ package vip.mystery0.tools.utils
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import vip.mystery0.tools.dispatchMessage
+import vip.mystery0.tools.doByTry
 import java.io.BufferedReader
 import java.io.DataOutputStream
-import java.io.IOException
 import java.io.InputStreamReader
 
 fun hasSu(): Boolean {
 	val commandTools = CommandTools()
-	val commandResult = commandTools.execCommands(emptyArray())
+	val commandResult = commandTools.execRootCommands(emptyArray())
 	Log.i("hasSu", commandResult.toString())
-	if (commandResult.errorMessage != null && (commandResult.errorMessage == CommandTools.PERMISSION_DENIED))
+	commandResult.error != null
+	if (commandResult.error != null && (commandResult.error!!.contains(CommandTools.PERMISSION_DENIED)))
 		return false
 	return true
 }
@@ -77,40 +79,49 @@ class CommandTools {
 		execCommands(cmds)
 	}
 
-	@Throws(IOException::class)
 	private fun execCommand(commands: Array<String>, isRoot: Boolean): CommandResult {
 		if (isDebug) {
 			Log.i(TAG, "exec: ${if (isRoot) CMD_SU else CMD_START}")
 		}
-		val process = Runtime.getRuntime().exec(if (isRoot) CMD_SU else CMD_START)
-		DataOutputStream(process.outputStream).use { outputStream ->
-			commands.forEach {
-				if (isDebug) {
-					Log.i(TAG, "exec: $it")
+		val pair = doByTry {
+			val process = Runtime.getRuntime().exec(if (isRoot) CMD_SU else CMD_START)
+			DataOutputStream(process.outputStream).use { outputStream ->
+				commands.forEach {
+					if (isDebug) {
+						Log.i(TAG, "exec: $it")
+					}
+					outputStream.write(it.toByteArray())
+					outputStream.writeBytes(CMD_LINE_END)
+					outputStream.flush()
 				}
-				outputStream.write(it.toByteArray())
-				outputStream.writeBytes(CMD_LINE_END)
+				if (isDebug) {
+					Log.i(TAG, "exec: $CMD_EXIT")
+				}
+				outputStream.writeBytes(CMD_EXIT)
 				outputStream.flush()
 			}
-			if (isDebug) {
-				Log.i(TAG, "exec: $CMD_EXIT")
-			}
-			outputStream.writeBytes(CMD_EXIT)
-			outputStream.flush()
-		}
 
-		val result = process.waitFor()
-		val successMessage = BufferedReader(InputStreamReader(process.inputStream)).readText()
-		val errorMessage = BufferedReader(InputStreamReader(process.errorStream)).readText()
-		return CommandResult(result, successMessage, errorMessage)
+			val result = process.waitFor()
+			val successMessage = BufferedReader(InputStreamReader(process.inputStream)).readText()
+			val errorMessage = BufferedReader(InputStreamReader(process.errorStream)).readText()
+			CommandResult(result, successMessage, errorMessage)
+		}
+		return if (pair.first != null) {
+			pair.first!!
+		} else {
+			Log.w(TAG, pair.second)
+			CommandResult(-1, null, pair.second.dispatchMessage())
+		}
 	}
 
 	/**
 	 * 执行shell命令的结果
 	 */
 	data class CommandResult(var result: Int,
-							 var successMessage: String? = null,
-							 var errorMessage: String? = null) {
-		fun isNoRoot(): Boolean = errorMessage != null && errorMessage!!.startsWith(PERMISSION_DENIED)
+							 var message: String? = null,
+							 var error: String? = null) {
+		fun isNoRoot(): Boolean = error != null && error!!.startsWith(PERMISSION_DENIED)
+
+		override fun toString(): String = "result: [$result], success: [$message], error: [$error]"
 	}
 }
