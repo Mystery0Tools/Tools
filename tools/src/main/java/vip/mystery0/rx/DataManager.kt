@@ -1,7 +1,6 @@
 package vip.mystery0.rx
 
 import androidx.lifecycle.MutableLiveData
-import vip.mystery0.tools.doByTry
 import java.util.concurrent.Executors
 
 fun <T, D : MutableLiveData<T>> D.doContent(data: T?) = this.postValue(data)
@@ -13,15 +12,13 @@ fun <T, D : MutableLiveData<PackageData<T>>> D.empty() = this.postValue(dataEmpt
 fun <T, D : MutableLiveData<PackageData<T>>> D.loading(data: T?) = this.postValue(dataLoading(data))
 fun <T, D : MutableLiveData<PackageData<T>>> D.loading() = this.postValue(dataLoading())
 
-fun <T, D : MutableLiveData<PackageData<T>>> D.doByCoroutine(`try`: (D) -> Unit) {
-	val pair = doByTry(`try`)
-	if (pair.second != null) {
-		error(pair.second)
+fun <T, R> Pair<R?, Exception?>.dealWith(liveData: MutableLiveData<PackageData<T>>) {
+	if (second != null) {
+		liveData.error(second)
 	}
 }
 
 class DataManager private constructor(threadNum: Int) {
-
 	companion object {
 		var instance: DataManager? = null
 			private set
