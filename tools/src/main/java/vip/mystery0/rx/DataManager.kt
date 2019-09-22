@@ -1,39 +1,23 @@
 package vip.mystery0.rx
 
 import androidx.lifecycle.MutableLiveData
+import vip.mystery0.tools.doByTry
 import java.util.concurrent.Executors
 
-fun <T> MutableLiveData<T>.doContent(data: T?) {
-	this.postValue(data)
-}
+fun <T, D : MutableLiveData<T>> D.doContent(data: T?) = this.postValue(data)
+fun <T, D : MutableLiveData<PackageData<T>>> D.content(data: T?) = this.postValue(dataContent(data))
+fun <T, D : MutableLiveData<PackageData<T>>> D.error(data: T?, error: Throwable?) = this.postValue(dataError(data, error))
+fun <T, D : MutableLiveData<PackageData<T>>> D.error(error: Throwable?) = this.postValue(dataError(error))
+fun <T, D : MutableLiveData<PackageData<T>>> D.empty(data: T?) = this.postValue(dataEmpty(data))
+fun <T, D : MutableLiveData<PackageData<T>>> D.empty() = this.postValue(dataEmpty())
+fun <T, D : MutableLiveData<PackageData<T>>> D.loading(data: T?) = this.postValue(dataLoading(data))
+fun <T, D : MutableLiveData<PackageData<T>>> D.loading() = this.postValue(dataLoading())
 
-fun <T> MutableLiveData<PackageData<T>>.content(data: T?) {
-	this.postValue(dataContent(data))
-}
-
-fun <T> MutableLiveData<PackageData<T>>.error(data: T?, error: Throwable?) {
-	this.postValue(dataError(data, error))
-}
-
-fun <T> MutableLiveData<PackageData<T>>.error(error: Throwable?) {
-	this.postValue(dataError(error))
-}
-
-fun <T> MutableLiveData<PackageData<T>>.empty(data: T?) {
-	this.postValue(dataEmpty(data))
-
-}
-
-fun <T> MutableLiveData<PackageData<T>>.empty() {
-	this.postValue(dataEmpty())
-}
-
-fun <T> MutableLiveData<PackageData<T>>.loading(data: T?) {
-	this.postValue(dataLoading(data))
-}
-
-fun <T> MutableLiveData<PackageData<T>>.loading() {
-	this.postValue(dataLoading())
+fun <T, D : MutableLiveData<PackageData<T>>, R> D.doByCoroutine(`try`: (D) -> Unit) {
+	val pair = doByTry(`try`)
+	if (pair.second != null) {
+		error(pair.second)
+	}
 }
 
 class DataManager private constructor(threadNum: Int) {
