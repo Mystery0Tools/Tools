@@ -3,40 +3,29 @@ package vip.mystery0.tools.utils
 import android.util.Log
 import java.io.BufferedReader
 import java.io.DataOutputStream
+import java.io.IOException
 import java.io.InputStreamReader
 
-class CommandTools private constructor() {
+fun hasSu(): Boolean {
+	val commandTools = CommandTools()
+	val commandResult = commandTools.execCommands(emptyArray())
+	Log.i("hasSu", commandResult.toString())
+	if (commandResult.errorMessage != null && (commandResult.errorMessage == CommandTools.PERMISSION_DENIED))
+		return false
+	return true
+}
+
+class CommandTools {
 	companion object {
-		private val TAG = CommandTools::class.java.simpleName
-		@JvmField
-		val INSTANCE = Holder.holder
-		@JvmField
-		val instance = INSTANCE
-		private const val PERMISSION_DENIED = "Permission denied"
+		private const val TAG = "CommandTools"
+		const val PERMISSION_DENIED = "Permission denied"
 		private const val CMD_SU = "su"
 		private const val CMD_EXIT = "exit\n"
 		private const val CMD_LINE_END = "\n"
 		private const val CMD_START = "sh"
 	}
 
-	private object Holder {
-		val holder = CommandTools()
-	}
 	var isDebug = false
-
-	/**
-	 * 申请Root权限
-	 * @return 返回申请结果
-	 */
-	fun requestSU(): Boolean {
-		val commandResult = execCommand(emptyArray(), true)
-		if (isDebug) {
-			Log.i(TAG, commandResult.toString())
-		}
-		if (commandResult.errorMessage != null && (commandResult.errorMessage == PERMISSION_DENIED))
-			return false
-		return true
-	}
 
 	/**
 	 * 执行命令
@@ -66,20 +55,13 @@ class CommandTools private constructor() {
 	 */
 	fun execRootCommands(cmds: Array<String>): CommandResult = execCommand(cmds, true)
 
+	@Throws(IOException::class)
 	private fun execCommand(commands: Array<String>, isRoot: Boolean): CommandResult {
-		var result = -1
-		var process: Process? = null
-		var successResult: BufferedReader? = null
-		var errorResult: BufferedReader? = null
-		var successMsg: StringBuilder? = null
-		var errorMsg: StringBuilder? = null
-		var outputStream: DataOutputStream? = null
-		try {
-			if (isDebug) {
-				Log.i(TAG, "exec: ${if (isRoot) CMD_SU else CMD_START}")
-			}
-			process = Runtime.getRuntime().exec(if (isRoot) CMD_SU else CMD_START)
-			outputStream = DataOutputStream(process.outputStream)
+		if (isDebug) {
+			Log.i(TAG, "exec: ${if (isRoot) CMD_SU else CMD_START}")
+		}
+		val process = Runtime.getRuntime().exec(if (isRoot) CMD_SU else CMD_START)
+		DataOutputStream(process.outputStream).use { outputStream ->
 			commands.forEach {
 				if (isDebug) {
 					Log.i(TAG, "exec: $it")
@@ -93,31 +75,12 @@ class CommandTools private constructor() {
 			}
 			outputStream.writeBytes(CMD_EXIT)
 			outputStream.flush()
-
-			result = process.waitFor()
-			successMsg = StringBuilder()
-			errorMsg = StringBuilder()
-			successResult = BufferedReader(InputStreamReader(process.inputStream))
-			errorResult = BufferedReader(InputStreamReader(process.errorStream))
-			var s = successResult.readLine()
-			while (s != null) {
-				successMsg.append(s)
-				s = successResult.readLine()
-			}
-			s = errorResult.readLine()
-			while (s != null) {
-				errorMsg.append(s)
-				s = errorResult.readLine()
-			}
-		} catch (e: Exception) {
-			e.printStackTrace()
-		} finally {
-			outputStream?.close()
-			successResult?.close()
-			errorResult?.close()
-			process?.destroy()
 		}
-		return CommandResult(result, successMsg?.toString(), errorMsg?.toString())
+
+		val result = process.waitFor()
+		val successMessage = BufferedReader(InputStreamReader(process.inputStream)).readText()
+		val errorMessage = BufferedReader(InputStreamReader(process.errorStream)).readText()
+		return CommandResult(result, successMessage, errorMessage)
 	}
 
 	/**
