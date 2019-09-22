@@ -13,7 +13,7 @@ fun <T, D : MutableLiveData<PackageData<T>>> D.empty() = this.postValue(dataEmpt
 fun <T, D : MutableLiveData<PackageData<T>>> D.loading(data: T?) = this.postValue(dataLoading(data))
 fun <T, D : MutableLiveData<PackageData<T>>> D.loading() = this.postValue(dataLoading())
 
-fun <T, D : MutableLiveData<PackageData<T>>, R> D.doByCoroutine(`try`: (D) -> Unit) {
+fun <T, D : MutableLiveData<PackageData<T>>> D.doByCoroutine(`try`: (D) -> Unit) {
 	val pair = doByTry(`try`)
 	if (pair.second != null) {
 		error(pair.second)

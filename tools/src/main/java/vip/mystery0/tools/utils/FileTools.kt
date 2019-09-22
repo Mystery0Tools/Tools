@@ -222,13 +222,13 @@ fun Bitmap.toByteArray(compressFormat: Bitmap.CompressFormat): ByteArray {
  * @return 字节数组
  */
 @Throws(IOException::class)
-suspend fun File.composeImage(compressFormat: Bitmap.CompressFormat, maxSize: Int, interval: Int): ByteArray {
+suspend fun File.base64CompressImage(compressFormat: Bitmap.CompressFormat, maxSize: Int, interval: Int): String {
 	require(interval in 0..100) { "interval can not be less 0 or more than 100" }
 	return withContext(Dispatchers.IO) {
 		val outputStream = ByteArrayOutputStream()
 		var option = 100
-		var base64String: String
-		while (option <= 0) {
+		var base64String: String? = null
+		while (option >= 0) {
 			outputStream.reset()
 			val bitmap = BitmapFactory.decodeFile(absolutePath)
 			bitmap.compress(compressFormat, option, outputStream)
@@ -237,9 +237,8 @@ suspend fun File.composeImage(compressFormat: Bitmap.CompressFormat, maxSize: In
 				break
 			option -= interval
 		}
-		val result = outputStream.toByteArray()
-		outputStream.close()
-		result
+		outputStream.closeQuietly(true)
+		base64String!!
 	}
 }
 
