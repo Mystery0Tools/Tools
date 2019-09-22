@@ -25,18 +25,18 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
 
 	override fun requestData() {
 		super.requestData()
-		GlobalScope.launch(Dispatchers.Main) {
-			val dir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-			val file = File(dir, "test.txt")
-			"this is test\nthis is second line".writeToFile(file)
-			val outFile = File(dir, "out.txt")
-			file.copyToFile(outFile)
-			val content = outFile.readToString()
-			content.toast()
-			text_view.text = content
-			val outDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-			dir!!.copyToDir(outDir!!)
-			hasSuInBackground().toast()
-		}
+//		GlobalScope.launch(Dispatchers.Main) {
+//			val dir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+//			val file = File(dir, "test.txt")
+//			"this is test\nthis is second line".writeToFile(file)
+//			val outFile = File(dir, "out.txt")
+//			file.copyToFile(outFile)
+//			val content = outFile.readToString()
+//			content.toast()
+//			text_view.text = content
+//			val outDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+//			dir!!.copyToDir(outDir!!)
+//			hasSuInBackground().toast()
+//		}
 	}
 }
