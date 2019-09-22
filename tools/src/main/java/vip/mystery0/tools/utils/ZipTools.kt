@@ -80,7 +80,7 @@ suspend fun <T : File> T?.unZip(dir: File,
 	require(dir.exists() || dir.mkdirs()) { "输出目录创建失败" }
 
 	withContext(Dispatchers.IO) {
-		val zipFile = ZipFile(this@unzip, "GBK")
+		val zipFile = ZipFile(this@unZip, "GBK")
 		val entries = zipFile.entries
 		while (entries.hasMoreElements()) {
 			val zipEntry = entries.nextElement()
