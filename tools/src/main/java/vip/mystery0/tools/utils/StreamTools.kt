@@ -11,18 +11,18 @@ import java.io.OutputStream
 
 private const val TAG = "StreamTools"
 
-data class PairStream<I : InputStream, O : OutputStream>(val input: I, val output: O)
+class PairStream<I : InputStream, O : OutputStream>(val input: I, val output: O)
 
 fun <I : InputStream, O : OutputStream> PairStream<I, O>.copy(bufferSize: Int = 8024,
 															  closeInput: Boolean = true,
 															  closeOutput: Boolean = true): Long {
 	val buffer = ByteArray(bufferSize)
-	var n = input.read(buffer)
+	var len = input.read(buffer)
 	var count: Long = 0
-	while (n > 0) {
-		output.write(buffer, 0, n)
-		count += n.toLong()
-		n = input.read(buffer)
+	while (len > 0) {
+		output.write(buffer, 0, len)
+		count += len.toLong()
+		len = input.read(buffer)
 	}
 	if (closeInput)
 		input.closeQuietly(true)

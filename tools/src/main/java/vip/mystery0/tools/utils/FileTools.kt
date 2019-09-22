@@ -246,18 +246,22 @@ suspend fun File.composeImage(compressFormat: Bitmap.CompressFormat, maxSize: In
 /**
  * 获取文件的MD5值
  */
-fun File.md5(): String {
-	val hexDigits = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f')
-	val messageDigest = MessageDigest.getInstance("MD5")
-	messageDigest.update(FileInputStream(this).channel.map(FileChannel.MapMode.READ_ONLY, 0, length()))
-	val bytes = messageDigest.digest()
-	val stringBuffer = StringBuffer(2 * bytes.size)
-	for (byte in bytes) {
-		val c0 = hexDigits[byte.toInt() and 0xf0 shr 4]
-		val c1 = hexDigits[byte.toInt() and 0xf]
-		stringBuffer.append(c0).append(c1)
+@Throws(IOException::class)
+suspend fun File.md5(): String {
+	require(exists()) { "文件不存在" }
+	return withContext(Dispatchers.IO) {
+		val hexDigits = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f')
+		val messageDigest = MessageDigest.getInstance("MD5")
+		messageDigest.update(FileInputStream(this@md5).channel.map(FileChannel.MapMode.READ_ONLY, 0, length()))
+		val bytes = messageDigest.digest()
+		val stringBuffer = StringBuffer(2 * bytes.size)
+		for (byte in bytes) {
+			val c0 = hexDigits[byte.toInt() and 0xf0 shr 4]
+			val c1 = hexDigits[byte.toInt() and 0xf]
+			stringBuffer.append(c0).append(c1)
+		}
+		stringBuffer.toString()
 	}
-	return stringBuffer.toString()
 }
 
 /**
@@ -267,7 +271,6 @@ fun File.md5(): String {
  */
 suspend fun String.writeToFile(outputFile: File,
 							   append: Boolean = false) {
-	println(Thread.currentThread())
 	requireNotNull(outputFile.parentFile) { "输出目录创建失败！" }
 	require(outputFile.parentFile!!.exists() || outputFile.parentFile!!.mkdirs()) { "输出目录创建失败" }
 	withContext(Dispatchers.IO) {
