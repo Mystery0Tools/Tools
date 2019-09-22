@@ -9,18 +9,7 @@ import java.util.*
  * Created by kun on 2016/7/12.
  * Activity管理类
  */
-class ActivityManagerTools private constructor() {
-	companion object {
-		@JvmField
-		val INSTANCE = Holder.holder
-		@JvmField
-		val instance = INSTANCE
-	}
-
-	private object Holder {
-		val holder = ActivityManagerTools()
-	}
-
+object ActivityManagerTools {
 	private val activityStack by lazy { Stack<Activity>() }
 
 	/**
@@ -81,31 +70,20 @@ class ActivityManagerTools private constructor() {
 		}
 		activityStack.clear()
 	}
+}
 
-	fun registerActivityLifecycle(application: Application) {
-		application.registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
-			override fun onActivityPaused(activity: Activity?) {
-			}
-
-			override fun onActivityResumed(activity: Activity?) {
-			}
-
-			override fun onActivityStarted(activity: Activity?) {
-			}
-
-			override fun onActivityDestroyed(activity: Activity?) {
-				removeActivity(activity)
-			}
-
-			override fun onActivitySaveInstanceState(activity: Activity?, outState: Bundle?) {
-			}
-
-			override fun onActivityStopped(activity: Activity?) {
-			}
-
-			override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
-				addActivity(activity)
-			}
-		})
-	}
+fun Application.registerActivityLifecycle() {
+	registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
+		override fun onActivityPaused(activity: Activity?) = Unit
+		override fun onActivityResumed(activity: Activity?) = Unit
+		override fun onActivityStarted(activity: Activity?) = Unit
+		override fun onActivityDestroyed(activity: Activity?) {
+			ActivityManagerTools.removeActivity(activity)
+		}
+		override fun onActivitySaveInstanceState(activity: Activity?, outState: Bundle?) = Unit
+		override fun onActivityStopped(activity: Activity?) =Unit
+		override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
+			ActivityManagerTools.addActivity(activity)
+		}
+	})
 }
