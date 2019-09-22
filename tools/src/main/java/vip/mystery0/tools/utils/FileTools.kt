@@ -243,6 +243,9 @@ suspend fun File.composeImage(compressFormat: Bitmap.CompressFormat, maxSize: In
 	}
 }
 
+/**
+ * 获取文件的MD5值
+ */
 fun File.md5(): String {
 	val hexDigits = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f')
 	val messageDigest = MessageDigest.getInstance("MD5")
@@ -257,26 +260,27 @@ fun File.md5(): String {
 	return stringBuffer.toString()
 }
 
-suspend fun String.writeToFile(outputFile: File) {
+/**
+ * 将字符串写入文件
+ * @param outputFile 输出文件
+ * @param append 是否追加
+ */
+suspend fun String.writeToFile(outputFile: File,
+							   append: Boolean = false) {
+	println(Thread.currentThread())
 	requireNotNull(outputFile.parentFile) { "输出目录创建失败！" }
 	require(outputFile.parentFile!!.exists() || outputFile.parentFile!!.mkdirs()) { "输出目录创建失败" }
 	withContext(Dispatchers.IO) {
-		BufferedWriter(FileWriter(outputFile)).use {
-			it.write(this@writeToFile)
-		}
+		FileWriter(outputFile, append).write(this@writeToFile)
 	}
 }
 
+/**
+ * 从文件中读取字符串
+ */
 suspend fun File.readToString(): String {
 	require(exists()) { "文件不存在" }
 	return withContext(Dispatchers.IO) {
-		val stringBuilder = StringBuilder()
-		val `in` = BufferedReader(FileReader(this@readToString))
-		var value = `in`.readLine()
-		while (value != null) {
-			stringBuilder.appendln(value)
-			value = `in`.readLine()
-		}
-		stringBuilder.toString()
+		FileReader(this@readToString).readText()
 	}
 }
