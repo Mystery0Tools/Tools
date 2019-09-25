@@ -18,9 +18,7 @@
 package vip.mystery0.tools.utils
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Base64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import vip.mystery0.tools.context
@@ -212,34 +210,6 @@ fun Bitmap.toByteArray(compressFormat: Bitmap.CompressFormat): ByteArray {
 	val result = byteArrayOutputStream.toByteArray()
 	byteArrayOutputStream.close()
 	return result
-}
-
-/**
- * 压缩图片并进行base64加密
- * @param compressFormat 压缩的格式
- * @param maxSize 压缩之后最大的大小
- * @param interval 每次压缩的压缩率差值
- * @return 字节数组
- */
-@Throws(IOException::class)
-suspend fun File.base64CompressImage(compressFormat: Bitmap.CompressFormat, maxSize: Int, interval: Int): String {
-	require(interval in 0..100) { "interval can not be less 0 or more than 100" }
-	return withContext(Dispatchers.IO) {
-		val outputStream = ByteArrayOutputStream()
-		var option = 100
-		var base64String: String? = null
-		while (option >= 0) {
-			outputStream.reset()
-			val bitmap = BitmapFactory.decodeFile(absolutePath)
-			bitmap.compress(compressFormat, option, outputStream)
-			base64String = Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT)
-			if (base64String.length <= maxSize)
-				break
-			option -= interval
-		}
-		outputStream.closeQuietly(true)
-		base64String!!
-	}
 }
 
 /**
