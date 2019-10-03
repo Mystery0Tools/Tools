@@ -20,40 +20,40 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
-	compileSdkVersion 29
+    compileSdkVersion 29
 
-	dataBinding {
-		enabled = true
-	}
+    dataBinding {
+        enabled = true
+    }
 
-	defaultConfig {
-		minSdkVersion 21
-		targetSdkVersion 29
-		versionCode 1
-		versionName POM_VERSION
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 1
+        versionName POM_VERSION
 
-		vectorDrawables.useSupportLibrary = true
-	}
+        vectorDrawables.useSupportLibrary = true
+    }
 
-	compileOptions {
-		sourceCompatibility 1.8
-		targetCompatibility 1.8
-	}
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
 }
 
 dependencies {
-	implementation 'androidx.appcompat:appcompat:1.1.0'
-	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-	compileOnly 'androidx.preference:preference:1.1.0'
-	compileOnly 'com.squareup.okhttp3:okhttp:4.2.0'
-	implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0-alpha05'
-	implementation 'com.google.code.gson:gson:2.8.5'
-	implementation 'org.apache.commons:commons-compress:1.19'
-	implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines"
-	implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines"
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    compileOnly 'androidx.preference:preference:1.1.0'
+    compileOnly 'com.squareup.okhttp3:okhttp:4.2.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0-alpha05'
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'org.apache.commons:commons-compress:1.19'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines"
 }
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 // 在底部加上这句
