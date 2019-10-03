@@ -7,12 +7,14 @@ import android.util.Log
 import androidx.annotation.ArrayRes
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 
 private const val TAG = "ToolsClient"
 
 fun context(): Context = ToolsClient.getContext()
 
+fun getTString(@StringRes resId: Int) = context().getString(resId)
 fun getTColor(@ColorRes resId: Int): Int = ContextCompat.getColor(context(), resId)
 fun getTDrawable(@DrawableRes resId: Int): Drawable? = ContextCompat.getDrawable(context(), resId)
 fun getTStringArray(@ArrayRes resId: Int): Array<String> = context().resources.getStringArray(resId)
