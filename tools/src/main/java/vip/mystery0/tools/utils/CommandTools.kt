@@ -3,7 +3,6 @@ package vip.mystery0.tools.utils
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import vip.mystery0.tools.dispatchMessage
 import vip.mystery0.tools.doByTry
 import java.io.BufferedReader
 import java.io.DataOutputStream
@@ -110,7 +109,7 @@ class CommandTools {
 			pair.first!!
 		} else {
 			Log.w(TAG, pair.second)
-			CommandResult(-1, null, pair.second.dispatchMessage())
+			CommandResult(-1, null, pair.second?.message)
 		}
 	}
 
