@@ -14,7 +14,10 @@ private const val TAG = "ToolsClient"
 
 fun context(): Context = ToolsClient.getContext()
 
+val packageName: String = context().packageName
+
 fun getTString(@StringRes resId: Int) = context().getString(resId)
+fun getTString(@StringRes resId: Int, vararg params: Any) = context().getString(resId, params)
 fun getTColor(@ColorRes resId: Int): Int = ContextCompat.getColor(context(), resId)
 fun getTDrawable(@DrawableRes resId: Int): Drawable? = ContextCompat.getDrawable(context(), resId)
 fun getTStringArray(@ArrayRes resId: Int): Array<String> = context().resources.getStringArray(resId)
