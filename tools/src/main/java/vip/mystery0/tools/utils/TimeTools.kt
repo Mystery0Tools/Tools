@@ -54,3 +54,7 @@ fun Long.getCalendarFromLong(): Calendar {
 fun Calendar.toDateTimeString(): String = simpleDateFormat.format(time)
 fun Calendar.toDateString(): String = showDateFormat.format(time)
 fun Calendar.toTimeString(): String = showTimeFormat.format(time)
+
+fun now(): Calendar = Calendar.getInstance()
+fun nowMillis(): Long = now().timeInMillis
+fun nowDateTime(): String = now().toDateTimeString()
