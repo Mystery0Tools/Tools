@@ -1,5 +1,6 @@
 package vip.mystery0.tools.utils
 
+import android.util.Base64
 import java.security.MessageDigest
 
 fun String.md5(): String = toByteArray().md5()
@@ -56,3 +57,10 @@ private fun toHex(byteArray: ByteArray): String =
 			}
 			toString()
 		}
+
+fun ByteArray.base64(flags: Int = Base64.DEFAULT): ByteArray = Base64.encode(this, flags)
+fun ByteArray.deBase64(flags: Int = Base64.DEFAULT): ByteArray = Base64.decode(this, flags)
+fun ByteArray.base64String(flags: Int = Base64.DEFAULT): String = String(base64(flags))
+fun ByteArray.deBase64String(flags: Int = Base64.DEFAULT): String = String(deBase64(flags))
+fun String.base64(flags: Int = Base64.DEFAULT): String = toByteArray().base64String(flags)
+fun String.deBase64(flags: Int = Base64.DEFAULT): String = toByteArray().deBase64String(flags)
