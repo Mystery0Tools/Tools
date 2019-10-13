@@ -4,8 +4,8 @@ import okhttp3.MediaType
 import okhttp3.ResponseBody
 import okio.*
 
-class DownloadProgressResponseBody(private val responseBody: ResponseBody,
-								   private val progress: (Long, Long) -> Unit) : ResponseBody() {
+class ProgressResponseBody(private val responseBody: ResponseBody,
+						   private val progress: (Long, Long) -> Unit) : ResponseBody() {
 	private var bufferedSource: BufferedSource? = null
 
 	override fun contentType(): MediaType? = responseBody.contentType()
