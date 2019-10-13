@@ -58,14 +58,7 @@ abstract class BaseActivity(@LayoutRes private val layoutId: Int?) : AppCompatAc
 			toastMessage(this, showLong)
 	}
 
-	fun Any?.toast(showLong: Boolean = false) {
-		if (this != null)
-			toastMessage(this, showLong)
-	}
-
-	fun toastMessage(any: Any, showLong: Boolean = false) = toastMessage(any.toString(), showLong)
-
-	fun toastMessage(text: String, showLong: Boolean = false) {
+	fun toastMessage(text: String?, showLong: Boolean = false) {
 		toast?.cancel()
 		toast = Toast.makeText(this, text, if (showLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
 		toast?.show()

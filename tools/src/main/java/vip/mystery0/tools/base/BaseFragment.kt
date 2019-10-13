@@ -42,7 +42,7 @@ abstract class BaseFragment(@LayoutRes private val layoutId: Int) : Fragment() {
 			toastMessage(this, showLong)
 	}
 
-	fun toastMessage(text: String, showLong: Boolean = false) {
+	fun toastMessage(text: String?, showLong: Boolean = false) {
 		toast?.cancel()
 		toast = Toast.makeText(context, text, if (showLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
 		toast?.show()
