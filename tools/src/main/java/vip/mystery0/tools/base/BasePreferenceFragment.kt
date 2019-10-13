@@ -33,7 +33,7 @@ abstract class BasePreferenceFragment(@XmlRes private val preferencesResId: Int)
 			toastMessage(this, showLong)
 	}
 
-	fun toastMessage(text: String, showLong: Boolean = false) {
+	fun toastMessage(text: String?, showLong: Boolean = false) {
 		toast?.cancel()
 		toast = Toast.makeText(context, text, if (showLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
 		toast?.show()
