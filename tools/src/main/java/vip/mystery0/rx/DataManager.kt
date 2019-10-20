@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
@@ -18,8 +19,9 @@ fun <T, D : MutableLiveData<PackageData<T>>> D.loading(data: T?) = this.postValu
 fun <T, D : MutableLiveData<PackageData<T>>> D.loading() = this.postValue(dataLoading())
 
 fun <T> ViewModel.launch(liveData: MutableLiveData<PackageData<T>>,
+						 start: CoroutineStart = CoroutineStart.DEFAULT,
 						 action: suspend CoroutineScope.() -> Unit) =
-		viewModelScope.launch(dispatchException(liveData)) { action() }
+		viewModelScope.launch(dispatchException(liveData), start) { action() }
 
 fun <T> dispatchException(liveData: MutableLiveData<PackageData<T>>): CoroutineExceptionHandler =
 		CoroutineExceptionHandler { _, throwable -> liveData.error(throwable) }
