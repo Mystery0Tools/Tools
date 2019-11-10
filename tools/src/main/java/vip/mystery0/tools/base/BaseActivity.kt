@@ -24,8 +24,10 @@ import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
 
-abstract class BaseActivity(@LayoutRes private val layoutId: Int?) : AppCompatActivity() {
+abstract class BaseActivity(@LayoutRes private val layoutId: Int?) : AppCompatActivity(), CoroutineScope by MainScope() {
 	private val permissionArray: ArrayList<Array<String>> by lazy { ArrayList<Array<String>>() }
 	private val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList<(Int, IntArray) -> Unit>() }
 	private var toast: Toast? = null
