@@ -5,6 +5,8 @@ import android.app.Application
 import android.os.Bundle
 import java.util.*
 
+fun currentActivity() = ActivityManagerTools.currentActivity()
+
 /**
  * Created by kun on 2016/7/12.
  * Activity管理类
@@ -80,8 +82,9 @@ fun Application.registerActivityLifecycle() {
 		override fun onActivityDestroyed(activity: Activity?) {
 			ActivityManagerTools.removeActivity(activity)
 		}
+
 		override fun onActivitySaveInstanceState(activity: Activity?, outState: Bundle?) = Unit
-		override fun onActivityStopped(activity: Activity?) =Unit
+		override fun onActivityStopped(activity: Activity?) = Unit
 		override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
 			ActivityManagerTools.addActivity(activity)
 		}
