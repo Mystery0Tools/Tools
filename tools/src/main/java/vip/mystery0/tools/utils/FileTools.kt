@@ -56,8 +56,11 @@ fun Long.toFormatFileSize(decimalNum: Int = 2): String {
 		return "0B"
 	val formatString = StringBuilder()
 	formatString.append("#.")
-	for (i in 0 until decimalNum)
-		formatString.append('0')
+	if (decimalNum <= 0)
+		formatString.deleteCharAt(1)
+	else
+		for (i in 0 until decimalNum)
+			formatString.append('0')
 	val decimalFormat = DecimalFormat(formatString.toString())
 	val fileSizeString: String
 	fileSizeString = when {
