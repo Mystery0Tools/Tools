@@ -9,8 +9,8 @@ if (project.rootProject.file('local.properties') != null && project.rootProject.
 	isHasFile = true
 	properties.load(project.rootProject.file('local.properties').newDataInputStream())
 }
-def user = isHasFile ? properties.getProperty("bintray.user") : System.getenv("bintray.user")
-def key = isHasFile ? properties.getProperty("bintray.apikey") : System.getenv("bintray.apikey")
+def user = isHasFile ? properties.getProperty("bintray.user") : System.getenv("BINTRAY_USER")
+def key = isHasFile ? properties.getProperty("bintray.apikey") : System.getenv("BINTRAY_KEY")
 
 publish {
 	repoName = POM_REPO_NAME                // 代码仓库名称。 默认设置为“maven”
