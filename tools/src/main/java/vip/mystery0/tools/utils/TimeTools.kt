@@ -52,6 +52,9 @@ fun Long.getCalendarFromLong(): Calendar {
 	return calendar
 }
 
+fun Date.toDateTimeString(): String = simpleDateFormat.format(time)
+fun Date.toDateString(): String = showDateFormat.format(time)
+fun Date.toTimeString(): String = showTimeFormat.format(time)
 fun Calendar.toDateTimeString(): String = simpleDateFormat.format(time)
 fun Calendar.toDateString(): String = showDateFormat.format(time)
 fun Calendar.toTimeString(): String = showTimeFormat.format(time)

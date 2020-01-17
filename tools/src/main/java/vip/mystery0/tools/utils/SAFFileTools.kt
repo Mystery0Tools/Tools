@@ -18,10 +18,10 @@ fun DocumentFile?.getChildFile(fileName: String, deleteWhenNotFile: Boolean = tr
 		return null
 	var file: DocumentFile? = this.findFile(fileName)
 	if (file == null || !file.exists())
-		return this.createFile(fileName.getMimeType(), fileName)
+		return this.createFile(fileName.getMimeType()!!, fileName)
 	if (!file.isFile && deleteWhenNotFile) {
 		file.delete()
-		file = this.createFile(fileName.getMimeType(), fileName)
+		file = this.createFile(fileName.getMimeType()!!, fileName)
 	}
 	return file
 }
