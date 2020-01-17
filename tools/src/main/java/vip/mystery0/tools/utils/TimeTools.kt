@@ -8,6 +8,7 @@ import java.util.*
  * @return
  */
 fun Long.formatTime(): String {
+	if (this <= 0) return "0毫秒"
 	val ss = 1000
 	val mi = ss * 60
 	val hh = mi * 60
@@ -17,7 +18,7 @@ fun Long.formatTime(): String {
 	val hour = (this - day * dd) / hh
 	val minute = (this - day * dd - hour * hh) / mi
 	val second = (this - day * dd - hour * hh - minute * mi) / ss
-	val milliSecond = this - day * dd - hour * hh - minute * mi - second * ss
+	val milliSecond = this % ss
 
 	val sb = StringBuffer()
 	if (day > 0) {
