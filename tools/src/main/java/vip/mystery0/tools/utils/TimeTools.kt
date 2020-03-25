@@ -1,5 +1,6 @@
 package vip.mystery0.tools.utils
 
+import vip.mystery0.tools.model.LRUCache
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -67,12 +68,16 @@ fun Long.formatTime(
 	return sb.toString()
 }
 
-private val simpleDateFormat by lazy { SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA) }
-private val showDateFormat by lazy { SimpleDateFormat("yyyy-MM-dd", Locale.CHINA) }
-private val showTimeFormat by lazy { SimpleDateFormat("HH:mm:ss", Locale.CHINA) }
+private val formatterLRUCache by lazy { LRUCache<SimpleDateFormat>(5) }
 
-fun Calendar.equalsDate(calendar: Calendar): Boolean = showDateFormat.format(time) == showDateFormat.format(calendar.time)
-fun Calendar.equalsTime(calendar: Calendar): Boolean = showTimeFormat.format(time) == showTimeFormat.format(calendar.time)
+private fun getSimpleDateFormatter(pattern: String): SimpleDateFormat = formatterLRUCache.getOrElse(pattern) {
+	val formatter = SimpleDateFormat(pattern, Locale.getDefault())
+	formatterLRUCache[pattern] = formatter
+	formatter
+}
+
+fun Calendar.equalsDate(calendar: Calendar): Boolean = getSimpleDateFormatter("yyyy-MM-dd").format(time) == getSimpleDateFormatter("yyyy-MM-dd").format(calendar.time)
+fun Calendar.equalsTime(calendar: Calendar): Boolean = getSimpleDateFormatter("HH:mm:ss").format(time) == getSimpleDateFormatter("HH:mm:ss").format(calendar.time)
 
 fun Long.getCalendarFromLong(): Calendar {
 	val calendar = Calendar.getInstance()
@@ -80,12 +85,12 @@ fun Long.getCalendarFromLong(): Calendar {
 	return calendar
 }
 
-fun Date.toDateTimeString(): String = simpleDateFormat.format(time)
-fun Date.toDateString(): String = showDateFormat.format(time)
-fun Date.toTimeString(): String = showTimeFormat.format(time)
-fun Calendar.toDateTimeString(): String = simpleDateFormat.format(time)
-fun Calendar.toDateString(): String = showDateFormat.format(time)
-fun Calendar.toTimeString(): String = showTimeFormat.format(time)
+fun Date.toDateTimeString(): String = getSimpleDateFormatter("yyyy-MM-dd HH:mm:ss").format(time)
+fun Date.toDateString(): String = getSimpleDateFormatter("yyyy-MM-dd").format(time)
+fun Date.toTimeString(): String = getSimpleDateFormatter("HH:mm:ss").format(time)
+fun Calendar.toDateTimeString(): String = getSimpleDateFormatter("yyyy-MM-dd HH:mm:ss").format(time)
+fun Calendar.toDateString(): String = getSimpleDateFormatter("yyyy-MM-dd").format(time)
+fun Calendar.toTimeString(): String = getSimpleDateFormatter("HH:mm:ss").format(time)
 
 fun now(): Calendar = Calendar.getInstance()
 fun nowMillis(): Long = now().timeInMillis
