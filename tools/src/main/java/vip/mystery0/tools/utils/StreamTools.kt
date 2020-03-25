@@ -49,7 +49,6 @@ suspend fun <T : InputStream> T?.copy(output: OutputStream?,
 fun <T : Closeable?> T.useToBoolean(block: (T) -> Unit): Boolean = this.tryOrBoolean {
 	use {
 		block(it)
-		return@use true
 	}
 }
 
