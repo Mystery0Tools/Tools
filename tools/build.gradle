@@ -57,6 +57,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines"
 }
 repositories {
+    //如果依赖拉取速度过慢请注释此行
     maven { url "http://nexus3.mystery0.vip/repository/maven-public/" }
     mavenCentral()
 }
