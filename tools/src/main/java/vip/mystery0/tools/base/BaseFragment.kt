@@ -14,8 +14,8 @@ import androidx.fragment.app.Fragment
 
 abstract class BaseFragment(@LayoutRes private val layoutId: Int) : Fragment() {
 	private var rootView: View? = null
-	private val permissionArray: ArrayList<Array<String>> by lazy { ArrayList() }
-	private val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList() }
+	private val permissionArray by lazy { ArrayList<Array<String>>() }
+	private val permissionMap by lazy { ArrayList<(Int, IntArray) -> Unit>() }
 	private var toast: Toast? = null
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

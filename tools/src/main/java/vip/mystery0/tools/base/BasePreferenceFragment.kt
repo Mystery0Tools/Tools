@@ -10,8 +10,8 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 
 abstract class BasePreferenceFragment(@XmlRes private val preferencesResId: Int) : PreferenceFragmentCompat() {
-	private val permissionArray: ArrayList<Array<String>> by lazy { ArrayList() }
-	private val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList() }
+	private val permissionArray by lazy { ArrayList<Array<String>>() }
+	private val permissionMap by lazy { ArrayList<(Int, IntArray) -> Unit>() }
 	private var toast: Toast? = null
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
