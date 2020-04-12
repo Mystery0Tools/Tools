@@ -2,8 +2,12 @@ package vip.mystery0.tools.utils
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.content.Context
+import android.view.ContextThemeWrapper
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StyleRes
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 
@@ -69,4 +73,32 @@ fun View.fadeIn(duration: Int) {
 			.setInterpolator(FastOutSlowInInterpolator()) // NOTE: We need to remove any previously set listener or Android will reuse it.
 			.setListener(null)
 			.start()
+}
+
+fun Context.inflate(resource: Int,
+					@StyleRes themeRes: Int = 0): View = if (themeRes != 0) {
+	inflate(resource, null, false, ContextThemeWrapper(this, themeRes))
+} else {
+	inflate(resource, null, false, this)
+}
+
+fun ViewGroup.inflate(resource: Int,
+					  @StyleRes themeRes: Int = 0): View = if (themeRes != 0) {
+	inflate(resource, this, false, ContextThemeWrapper(context, themeRes))
+} else {
+	inflate(resource, this, false, context)
+}
+
+fun ViewGroup.inflateInto(resource: Int,
+						  @StyleRes themeRes: Int = 0): View = if (themeRes != 0) {
+	inflate(resource, this, true, ContextThemeWrapper(context, themeRes))
+} else {
+	inflate(resource, this, true, context)
+}
+
+private fun inflate(resource: Int,
+					parent: ViewGroup?,
+					attachToRoot: Boolean,
+					context: Context): View {
+	return LayoutInflater.from(context).inflate(resource, parent, attachToRoot)
 }
