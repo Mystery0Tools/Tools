@@ -10,8 +10,8 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 
 abstract class BasePreferenceFragment(@XmlRes private val preferencesResId: Int) : PreferenceFragmentCompat() {
-	private val permissionArray: ArrayList<Array<String>> by lazy { ArrayList<Array<String>>() }
-	private val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList<(Int, IntArray) -> Unit>() }
+	private val permissionArray: ArrayList<Array<String>> by lazy { ArrayList() }
+	private val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList() }
 	private var toast: Toast? = null
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -28,15 +28,22 @@ abstract class BasePreferenceFragment(@XmlRes private val preferencesResId: Int)
 
 	open fun monitor() {}
 
-	fun String?.toast(showLong: Boolean) {
-		if (this != null)
-			toastMessage(this, showLong)
+	fun toast(text: CharSequence?, duration: Int = Toast.LENGTH_SHORT) {
+		toast?.cancel()
+		toast = Toast.makeText(context, text, duration)
+		toast?.show()
 	}
 
-	fun toastMessage(text: String?, showLong: Boolean = false) {
-		toast?.cancel()
-		toast = Toast.makeText(context, text, if (showLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
-		toast?.show()
+	fun toast(@StringRes textRes: Int, duration: Int = Toast.LENGTH_SHORT) {
+		toast(getString(textRes), duration)
+	}
+
+	fun toastLong(text: CharSequence?) {
+		toast(text, Toast.LENGTH_LONG)
+	}
+
+	fun toastLong(@StringRes textRes: Int) {
+		toastLong(getString(textRes))
 	}
 
 	fun <T : Preference> findPreferenceById(@StringRes id: Int): T = findPreference(getString(id))!!

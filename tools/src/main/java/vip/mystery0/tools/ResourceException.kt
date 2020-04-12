@@ -1,8 +1,9 @@
 package vip.mystery0.tools
 
 import android.content.Context
-import android.widget.Toast
 import androidx.annotation.StringRes
+import vip.mystery0.tools.utils.toast
+import vip.mystery0.tools.utils.toastLong
 
 class ResourceException(@StringRes val id: Int) : RuntimeException() {
 	override val message: String?
@@ -11,13 +12,15 @@ class ResourceException(@StringRes val id: Int) : RuntimeException() {
 
 fun Throwable?.toast(context: Context = context()) = dispatch(this, false, context)
 fun Throwable?.toastLong(context: Context = context()) = dispatch(this, true, context)
-fun String?.toast(context: Context = context()) = newToast(context, this, Toast.LENGTH_SHORT)
-fun String?.toastLong(context: Context = context()) = newToast(context, this, Toast.LENGTH_LONG)
+fun String?.toast(context: Context = context()) = toast(this, context = context)
+fun String?.toastLong(context: Context = context()) = toastLong(this, context = context)
 
 private fun dispatch(throwable: Throwable?, isLong: Boolean, context: Context = context()) {
-	newToast(context, throwable?.message, if (isLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
-}
-
-private fun newToast(context: Context, message: String?, length: Int) {
-	Toast.makeText(context, message, length).show()
+	throwable?.let {
+		if (isLong) {
+			toastLong(it.message, context = context)
+		} else {
+			toast(it.message, context = context)
+		}
+	}
 }

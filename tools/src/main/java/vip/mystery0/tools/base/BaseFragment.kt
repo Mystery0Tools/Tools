@@ -8,13 +8,14 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 
 abstract class BaseFragment(@LayoutRes private val layoutId: Int) : Fragment() {
 	private var rootView: View? = null
-	private val permissionArray: ArrayList<Array<String>> by lazy { ArrayList<Array<String>>() }
-	private val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList<(Int, IntArray) -> Unit>() }
+	private val permissionArray: ArrayList<Array<String>> by lazy { ArrayList() }
+	private val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList() }
 	private var toast: Toast? = null
 
 	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -37,15 +38,22 @@ abstract class BaseFragment(@LayoutRes private val layoutId: Int) : Fragment() {
 
 	open fun monitor() {}
 
-	fun String?.toast(showLong: Boolean) {
-		if (this != null)
-			toastMessage(this, showLong)
+	fun toast(text: CharSequence?, duration: Int = Toast.LENGTH_SHORT) {
+		toast?.cancel()
+		toast = Toast.makeText(context, text, duration)
+		toast?.show()
 	}
 
-	fun toastMessage(text: String?, showLong: Boolean = false) {
-		toast?.cancel()
-		toast = Toast.makeText(context, text, if (showLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
-		toast?.show()
+	fun toast(@StringRes textRes: Int, duration: Int = Toast.LENGTH_SHORT) {
+		toast(getString(textRes), duration)
+	}
+
+	fun toastLong(text: CharSequence?) {
+		toast(text, Toast.LENGTH_LONG)
+	}
+
+	fun toastLong(@StringRes textRes: Int) {
+		toastLong(getString(textRes))
 	}
 
 	fun <T : View> findViewById(@IdRes id: Int): T {

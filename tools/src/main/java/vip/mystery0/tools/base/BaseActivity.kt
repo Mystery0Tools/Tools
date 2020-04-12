@@ -21,6 +21,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.annotation.LayoutRes
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -28,8 +29,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 
 abstract class BaseActivity(@LayoutRes private val layoutId: Int?) : AppCompatActivity(), CoroutineScope by MainScope() {
-	private val permissionArray: ArrayList<Array<String>> by lazy { ArrayList<Array<String>>() }
-	private val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList<(Int, IntArray) -> Unit>() }
+	private val permissionArray: ArrayList<Array<String>> by lazy { ArrayList() }
+	private val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList() }
 	private var toast: Toast? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,15 +56,22 @@ abstract class BaseActivity(@LayoutRes private val layoutId: Int?) : AppCompatAc
 	open fun requestData() {}
 	open fun monitor() {}
 
-	fun String?.toast(showLong: Boolean = false) {
-		if (this != null)
-			toastMessage(this, showLong)
+	fun toast(text: CharSequence?, duration: Int = Toast.LENGTH_SHORT) {
+		toast?.cancel()
+		toast = Toast.makeText(this, text, duration)
+		toast?.show()
 	}
 
-	fun toastMessage(text: String?, showLong: Boolean = false) {
-		toast?.cancel()
-		toast = Toast.makeText(this, text, if (showLong) Toast.LENGTH_LONG else Toast.LENGTH_SHORT)
-		toast?.show()
+	fun toast(@StringRes textRes: Int, duration: Int = Toast.LENGTH_SHORT) {
+		toast(getString(textRes), duration)
+	}
+
+	fun toastLong(text: CharSequence?) {
+		toast(text, Toast.LENGTH_LONG)
+	}
+
+	fun toastLong(@StringRes textRes: Int) {
+		toastLong(getString(textRes))
 	}
 
 	fun reRequestPermission(requestCode: Int) {
