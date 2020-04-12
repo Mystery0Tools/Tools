@@ -15,14 +15,7 @@ class PairStream<I : InputStream, O : OutputStream>(private val input: I, privat
 	fun copy(bufferSize: Int = 8024,
 			 closeInput: Boolean = true,
 			 closeOutput: Boolean = true): Long {
-		val buffer = ByteArray(bufferSize)
-		var len = input.read(buffer)
-		var count: Long = 0
-		while (len > 0) {
-			output.write(buffer, 0, len)
-			count += len.toLong()
-			len = input.read(buffer)
-		}
+		val count = input.copyTo(output)
 		if (closeInput)
 			input.closeQuietly(true)
 		if (closeOutput)
