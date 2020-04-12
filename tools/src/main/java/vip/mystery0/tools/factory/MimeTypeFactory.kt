@@ -21,7 +21,7 @@ fun String.getMimeTypes(): List<String> = factory.extensionMap[this] ?: emptyLis
 fun String.getExtensionFromMimeType(): String? = factory.mimeTypeMap[this]?.firstOrNull()
 fun String.getExtensionsFromMimeType(): List<String> = factory.mimeTypeMap[this] ?: emptyList()
 
-class MimeTypeFactory(private val inputStream: InputStream) {
+class MimeTypeFactory(inputStream: InputStream) {
 	private val factory = SAXParserFactory.newInstance()
 	private val saxParser = factory.newSAXParser()
 	private val handler = Handler()
