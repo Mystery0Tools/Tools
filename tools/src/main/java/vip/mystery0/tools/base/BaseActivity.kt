@@ -29,8 +29,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 
 abstract class BaseActivity(@LayoutRes private val layoutId: Int?) : AppCompatActivity(), CoroutineScope by MainScope() {
-	private val permissionArray: ArrayList<Array<String>> by lazy { ArrayList() }
-	private val permissionMap: ArrayList<(Int, IntArray) -> Unit> by lazy { ArrayList() }
+	private val permissionArray by lazy { ArrayList<Array<String>>() }
+	private val permissionMap by lazy { ArrayList<(Int, IntArray) -> Unit>() }
 	private var toast: Toast? = null
 
 	override fun onCreate(savedInstanceState: Bundle?) {
