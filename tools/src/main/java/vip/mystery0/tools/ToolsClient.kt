@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 private const val TAG = "ToolsClient"
 
 fun context(): Context = ToolsClient.getContext()
+fun Context.initTools() = ToolsClient.initWithContext(this)
 
 val packageName: String = context().packageName
 

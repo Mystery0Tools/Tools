@@ -2,7 +2,7 @@ package vip.mystery0.rx
 
 import androidx.lifecycle.Observer
 
-interface PackageDataObserver<T> : Observer<PackageData<T>> {
+interface DataObserver<T> : Observer<PackageData<T>> {
 	override fun onChanged(tPackageData: PackageData<T>) {
 		when (tPackageData.status) {
 			Status.Loading -> loading()
@@ -13,10 +13,24 @@ interface PackageDataObserver<T> : Observer<PackageData<T>> {
 	}
 
 	fun loading() {}
+	fun empty() {}
+	fun empty(data: T?) {
+		if (data == null) {
+			empty()
+		}
+	}
 
-	fun empty(data: T?) {}
+	fun content(data: T?) {
+		data?.let {
+			contentNoEmpty(data)
+		}
+	}
 
-	fun content(data: T?) {}
-
-	fun error(data: T?, e: Throwable?) {}
+	fun contentNoEmpty(data: T) {}
+	fun error(e: Throwable?) {}
+	fun error(data: T?, e: Throwable?) {
+		if (data == null) {
+			error(e)
+		}
+	}
 }
