@@ -58,7 +58,6 @@ bintray {
         vcsUrl = POM_WEBSITE + '.git'
         userOrg = POM_USER_ORG
         websiteUrl = POM_WEBSITE
-        dryRun = true
         version {
             name = POM_VERSION
             released = new Date()
