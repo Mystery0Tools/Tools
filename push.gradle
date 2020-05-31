@@ -46,8 +46,8 @@ bintray {
     configurations = ['archives']
     override = true
     pkg {
-        repo = POM_REPO_NAME
-        name = POM_GROUP_ID
+        repo = POM_GROUP_ID
+        name = POM_REPO_NAME
         description = POM_DESC
         publish = true
         publicDownloadNumbers = true
