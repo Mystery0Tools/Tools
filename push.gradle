@@ -19,7 +19,7 @@ publishing {
             artifact("$buildDir/outputs/aar/tools-release.aar")
             groupId POM_GROUP_ID
             artifactId POM_ARTIFACT_ID
-            version this.version
+            version POM_VERSION
 
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
