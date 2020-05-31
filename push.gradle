@@ -1,4 +1,5 @@
-apply plugin: 'com.novoda.bintray-release'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
@@ -6,43 +7,79 @@ import org.apache.tools.ant.taskdefs.condition.Os
 Properties properties = new Properties()
 boolean isHasFile = false
 if (project.rootProject.file('local.properties') != null && project.rootProject.file('local.properties').exists()) {
-	isHasFile = true
-	properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    isHasFile = true
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
 }
-def user = isHasFile ? properties.getProperty("bintray.user") : System.getenv("BINTRAY_USER")
-def key = isHasFile ? properties.getProperty("bintray.apikey") : System.getenv("BINTRAY_KEY")
+def bintrayUser = isHasFile ? properties.getProperty("bintray.user") : System.getenv("BINTRAY_USER")
+def bintrayKey = isHasFile ? properties.getProperty("bintray.apikey") : System.getenv("BINTRAY_KEY")
 
-publish {
-	repoName = POM_REPO_NAME                // 代码仓库名称。 默认设置为“maven”
-	userOrg = POM_USER_ORG                  // 上传的组织名称
-	groupId = POM_GROUP_ID
-	artifactId = POM_ARTIFACT_ID            // 与groupId组合
-	publishVersion = POM_VERSION            // 仓库版本号
-	uploadName = POM_UPLOAD_NAME            // bintray中包的显示名称
-	desc = POM_DESC                         // 仓库说明
-	website = POM_WEBSITE                   // 仓库地址
+publishing {
+    publications {
+        Production(MavenPublication) {
+            artifact("$buildDir/outputs/aar/tools-release.aar")
+            groupId POM_GROUP_ID
+            artifactId POM_ARTIFACT_ID
+            version POM_VERSION
 
-	bintrayUser = user                      // bintray账号名
-	bintrayKey = key                        // bintray账号api key
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+
+                // Iterate over the implementation dependencies (we don't want the test ones), adding a <dependency> node for each
+                configurations.implementation.allDependencies.each {
+                    // Ensure dependencies such as fileTree are not included in the pom.
+                    if (it.name != 'unspecified') {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                    }
+                }
+            }
+        }
+    }
+}
+
+bintray {
+    user = bintrayUser
+    key = bintrayKey
+    publications = ['Production']
+    configurations = ['archives']
+    override = true
+    pkg {
+        repo = POM_REPO_NAME
+        name = POM_GROUP_ID
+        description = POM_DESC
+        publish = true
+        publicDownloadNumbers = true
+        licenses = ['Apache-2.0']
+        vcsUrl = POM_WEBSITE + '.git'
+        userOrg = POM_USER_ORG
+        websiteUrl = POM_WEBSITE
+        version {
+            name = POM_VERSION
+            released = new Date()
+            vcsTag = POM_VERSION
+        }
+    }
 }
 
 task fuck(group: 'publishing') {
-	doFirst {
-		if (null == user || null == key) {
-			throw new Exception('missing bintray.users or bintray.apikey in local.properties')
-		}
-	}
-	doLast {
-		exec {
-			commandLine "../${getGradlewName()}", 'clean', 'build', 'bintrayUpload', '-PdryRun=false'
-		}
-	}
+    doFirst {
+        if (null == bintrayUser || null == bintrayKey) {
+            throw new Exception('missing bintray.users or bintray.apikey in local.properties')
+        }
+    }
+    doLast {
+        exec {
+            commandLine "../${getGradlewName()}", 'clean', 'build', 'bintrayUpload'
+        }
+    }
 }
 
 static def getGradlewName() {
-	if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-		return "gradlew.bat"
-	} else {
-		return "gradlew"
-	}
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        return "gradlew.bat"
+    } else {
+        return "gradlew"
+    }
 }

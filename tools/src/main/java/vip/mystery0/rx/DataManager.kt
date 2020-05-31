@@ -1,5 +1,6 @@
 package vip.mystery0.rx
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,10 +18,16 @@ fun <T, D : MutableLiveData<PackageData<T>>> D.empty() = this.postValue(dataEmpt
 fun <T, D : MutableLiveData<PackageData<T>>> D.loading(data: T?) = this.postValue(dataLoading(data))
 fun <T, D : MutableLiveData<PackageData<T>>> D.loading() = this.postValue(dataLoading())
 
-fun <T> ViewModel.launch(liveData: MutableLiveData<PackageData<T>>,
+fun <T> ViewModel.launch(liveData: MutableLiveData<PackageData<T>>? = null,
 						 start: CoroutineStart = CoroutineStart.DEFAULT,
 						 action: suspend CoroutineScope.() -> Unit) =
 		viewModelScope.launch(dispatchException(liveData), start) { action() }
 
-fun <T> dispatchException(liveData: MutableLiveData<PackageData<T>>): CoroutineExceptionHandler =
-		CoroutineExceptionHandler { _, throwable -> liveData.error(throwable) }
+fun <T> dispatchException(liveData: MutableLiveData<PackageData<T>>?): CoroutineExceptionHandler =
+		CoroutineExceptionHandler { _, throwable ->
+			if (liveData != null) {
+				liveData.error(throwable)
+			} else {
+				Log.w("dispatchException", "CoroutineExceptionHandler", throwable)
+			}
+		}

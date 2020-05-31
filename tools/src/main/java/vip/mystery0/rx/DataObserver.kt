@@ -7,30 +7,22 @@ interface DataObserver<T> : Observer<PackageData<T>> {
 		when (tPackageData.status) {
 			Status.Loading -> loading()
 			Status.Content -> content(tPackageData.data)
-			Status.Empty -> empty(tPackageData.data)
-			Status.Error -> error(tPackageData.data, tPackageData.error)
+			Status.Empty -> empty()
+			Status.Error -> error(tPackageData.error)
 		}
 	}
 
 	fun loading() {}
 	fun empty() {}
-	fun empty(data: T?) {
+
+	private fun content(data: T?) {
 		if (data == null) {
 			empty()
-		}
-	}
-
-	fun content(data: T?) {
-		data?.let {
+		} else {
 			contentNoEmpty(data)
 		}
 	}
 
 	fun contentNoEmpty(data: T) {}
 	fun error(e: Throwable?) {}
-	fun error(data: T?, e: Throwable?) {
-		if (data == null) {
-			error(e)
-		}
-	}
 }
