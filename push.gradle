@@ -35,7 +35,7 @@ bintray {
 
 task fuck(group: 'publishing') {
     doFirst {
-        if (null == user || null == key) {
+        if (null == bintrayUser || null == bintrayKey) {
             throw new Exception('missing bintray.users or bintray.apikey in local.properties')
         }
     }
