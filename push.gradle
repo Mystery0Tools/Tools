@@ -13,6 +13,9 @@ if (project.rootProject.file('local.properties') != null && project.rootProject.
 def bintrayUser = isHasFile ? properties.getProperty("bintray.user") : System.getenv("BINTRAY_USER")
 def bintrayKey = isHasFile ? properties.getProperty("bintray.apikey") : System.getenv("BINTRAY_KEY")
 
+version POM_VERSION
+group POM_GROUP_ID
+
 publishing {
     publications {
         Production(MavenPublication) {
@@ -46,8 +49,8 @@ bintray {
     configurations = ['archives']
     override = true
     pkg {
-        repo = POM_GROUP_ID
-        name = POM_REPO_NAME
+        repo = POM_REPO_NAME
+        name = POM_UPLOAD_NAME
         description = POM_DESC
         publish = true
         publicDownloadNumbers = true
@@ -55,10 +58,10 @@ bintray {
         vcsUrl = POM_WEBSITE + '.git'
         userOrg = POM_USER_ORG
         websiteUrl = POM_WEBSITE
+        dryRun = true
         version {
             name = POM_VERSION
             released = new Date()
-            vcsTag = POM_VERSION
         }
     }
 }
