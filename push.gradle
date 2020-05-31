@@ -53,7 +53,6 @@ bintray {
         publicDownloadNumbers = true
         licenses = ['Apache-2.0']
         vcsUrl = POM_WEBSITE + '.git'
-        dryRun = true
         userOrg = POM_USER_ORG
         websiteUrl = POM_WEBSITE
         version {
