@@ -15,7 +15,8 @@ private const val TAG = "ToolsClient"
 fun context(): Context = ToolsClient.getContext()
 fun Context.initTools() = ToolsClient.initWithContext(this)
 
-val packageName: String = context().packageName
+val packageName: String
+	get() = context().packageName
 
 fun <T> getSystemService(serviceClass: Class<T>): T? = ContextCompat.getSystemService(context(), serviceClass)
 fun getTString(@StringRes resId: Int) = context().getString(resId)

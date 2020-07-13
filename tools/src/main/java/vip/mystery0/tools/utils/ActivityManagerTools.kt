@@ -76,16 +76,16 @@ object ActivityManagerTools {
 
 fun Application.registerActivityLifecycle() {
 	registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
-		override fun onActivityPaused(activity: Activity?) = Unit
-		override fun onActivityResumed(activity: Activity?) = Unit
-		override fun onActivityStarted(activity: Activity?) = Unit
-		override fun onActivityDestroyed(activity: Activity?) {
+		override fun onActivityPaused(activity: Activity) = Unit
+		override fun onActivityResumed(activity: Activity) = Unit
+		override fun onActivityStarted(activity: Activity) = Unit
+		override fun onActivityDestroyed(activity: Activity) {
 			ActivityManagerTools.removeActivity(activity)
 		}
 
-		override fun onActivitySaveInstanceState(activity: Activity?, outState: Bundle?) = Unit
-		override fun onActivityStopped(activity: Activity?) = Unit
-		override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
+		override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
+		override fun onActivityStopped(activity: Activity) = Unit
+		override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
 			ActivityManagerTools.addActivity(activity)
 		}
 	})
