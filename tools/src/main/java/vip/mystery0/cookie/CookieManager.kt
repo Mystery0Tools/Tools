@@ -2,7 +2,8 @@ package vip.mystery0.cookie
 
 import android.content.Context
 import android.content.SharedPreferences
-import vip.mystery0.tools.context
+import vip.mystery0.tools.utils.sp
+import vip.mystery0.tools.utils.use
 
 class CookieManager private constructor() {
 	companion object {
@@ -17,10 +18,12 @@ class CookieManager private constructor() {
 	}
 
 	private val cookiePreferences: SharedPreferences by lazy {
-		context().getSharedPreferences("cookie", Context.MODE_PRIVATE)
+		sp("cookie", Context.MODE_PRIVATE)
 	}
 
-	fun putCookie(domain: String, cookie: String?) = cookiePreferences.edit().putString(domain, cookie).apply()
+	fun putCookie(domain: String, cookie: String?) = cookiePreferences.use {
+		putString(domain, cookie)
+	}
 
 	fun getCookie(domain: String): String? = cookiePreferences.getString(domain, null)
 }

@@ -102,3 +102,18 @@ private fun inflate(resource: Int,
 					context: Context): View {
 	return LayoutInflater.from(context).inflate(resource, parent, attachToRoot)
 }
+
+var lastClickTime = 0L
+var clickTime = 0
+
+fun fastClick(time: Int = 2, block: () -> Unit) {
+	val nowTime = nowMillis()
+	if (nowTime - lastClickTime > 1000L) {
+		clickTime = 0
+	}
+	clickTime++
+	lastClickTime = nowTime
+	if (clickTime == time) {
+		block()
+	}
+}
