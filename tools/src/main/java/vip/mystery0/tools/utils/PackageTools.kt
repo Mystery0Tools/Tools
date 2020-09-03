@@ -49,7 +49,8 @@ private val nameMap = hashMapOf(
 		Pair(26, "Oreo"),
 		Pair(27, "Oreo"),
 		Pair(28, "Pie"),
-		Pair(29, "10")
+		Pair(29, "10"),
+		Pair(30, "11")
 )
 
 fun Int.getAndroidName(): String {
@@ -88,4 +89,5 @@ object AndroidVersionCode {
 	const val VERSION_O_MR1 = Build.VERSION_CODES.O_MR1
 	const val VERSION_P = Build.VERSION_CODES.P
 	const val VERSION_Q = Build.VERSION_CODES.Q
+	const val VERSION_R = Build.VERSION_CODES.R
 }
