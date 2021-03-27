@@ -18,6 +18,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion 30
@@ -48,19 +49,43 @@ android {
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    compileOnly 'androidx.preference:preference:1.1.1'
-    compileOnly 'com.squareup.okhttp3:okhttp:4.8.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0-alpha07'
+    compileOnly 'androidx.preference:preference-ktx:1.1.1'
+    compileOnly 'com.squareup.okhttp3:okhttp:4.9.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0-alpha01'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'org.apache.commons:commons-compress:1.20'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines"
 }
-repositories {
-    //如果依赖拉取速度过慢请注释此行
-    maven { url "http://nexus3.mystery0.vip/repository/maven-public/" }
-    mavenCentral()
+
+task generateSourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier 'sources'
 }
 
-// 在底部加上这句
-apply from: '../push.gradle'
+afterEvaluate {
+    publishing {
+        publications {
+            Production(MavenPublication) {
+                from components.release
+                groupId = POM_GROUP_ID
+                artifactId = POM_ARTIFACT_ID
+                version = POM_VERSION
+                // 上传source，这样使用方可以看到方法注释
+                artifact generateSourcesJar
+            }
+        }
+        repositories {
+            // 定义一个 maven 仓库
+            maven {
+                // 根据 versionName 来判断仓库地址
+                url = POM_VERSION.endsWith('SNAPSHOT') ? SNAPSHOT_REPOSITORY_URL : RELEASE_REPOSITORY_URL
+                // 仓库用户名密码
+                credentials {
+                    username = 'mystery0'
+                    password = 'Mystery0dyl'
+                }
+            }
+        }
+    }
+}
